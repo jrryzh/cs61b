@@ -82,7 +82,30 @@ public class IntList {
 
     public static IntList dcatenate(IntList A, IntList B) {
         //TODO:  fill in method
-        return null;
+//        // iteration
+//        IntList ptr1 = A;
+//        IntList ptr2 = B;
+//        while (ptr1.rest != null) {
+//            ptr1 = ptr1.rest;
+//        }
+//        while (ptr2 != null) {
+//            ptr1.rest = new IntList(ptr2.first, null);
+//            ptr1 = ptr1.rest;
+//            ptr2 = ptr2.rest;
+//        }
+//        return A;
+        // recursion
+        if (B == null){
+            return A;
+        }
+        else{
+            IntList ptr = A;
+            while (ptr.rest != null) {
+                ptr = ptr.rest;
+            }
+            ptr.rest = new IntList(B.first, null);
+            return dcatenate(A, B.rest);
+        }
     }
 
     /**
@@ -91,7 +114,24 @@ public class IntList {
      */
     public static IntList catenate(IntList A, IntList B) {
         //TODO:  fill in method
-        return null;
+        // iteration
+        IntList result = new IntList(A.first, null);
+        IntList ptr0 = result;
+        IntList ptr1 = A.rest;
+        IntList ptr2 = B;
+
+        while (ptr1 != null){
+            ptr0.rest = new IntList(ptr1.first, null);
+            ptr0 = ptr0.rest;
+            ptr1 = ptr1.rest;
+        }
+        while (ptr2 != null){
+            ptr0.rest = new IntList(ptr2.first, null);
+            ptr0 = ptr0.rest;
+            ptr2 = ptr2.rest;
+        }
+        return result;
+        // recursion 没想好怎么做 想到的都很麻烦需要复制啥的
     }
 
 
