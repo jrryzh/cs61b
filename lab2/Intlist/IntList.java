@@ -82,9 +82,16 @@ public class IntList {
 
     public static IntList dcatenate(IntList A, IntList B) {
         //TODO:  fill in method
-//        // iteration
+        /* iteration method */
 //        IntList ptr1 = A;
 //        IntList ptr2 = B;
+//        /* 检查A或B是否为null */
+//        if (B == null){
+//            return A;
+//        }
+//        else if (A == null){
+//            return B;
+//        }
 //        while (ptr1.rest != null) {
 //            ptr1 = ptr1.rest;
 //        }
@@ -94,7 +101,11 @@ public class IntList {
 //            ptr2 = ptr2.rest;
 //        }
 //        return A;
-        // recursion
+        /* recursion method */
+        if (A == null){
+            return B;
+        }
+
         if (B == null){
             return A;
         }
