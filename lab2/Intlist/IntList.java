@@ -125,31 +125,41 @@ public class IntList {
      */
     public static IntList catenate(IntList A, IntList B) {
         //TODO:  fill in method
-        // iteration
-        if (A == null){
-            return B;
-        }
+//        /* iteration method */
+//        if (A == null){
+//            return B;
+//        }
+//        if (B == null){
+//            return A;
+//        }
+//
+//        IntList result = new IntList(A.first, null);
+//        IntList ptr0 = result;
+//        IntList ptr1 = A.rest;
+//        IntList ptr2 = B;
+//
+//        while (ptr1 != null){
+//            ptr0.rest = new IntList(ptr1.first, null);
+//            ptr0 = ptr0.rest;
+//            ptr1 = ptr1.rest;
+//        }
+//        while (ptr2 != null){
+//            ptr0.rest = new IntList(ptr2.first, null);
+//            ptr0 = ptr0.rest;
+//            ptr2 = ptr2.rest;
+//        }
+//        return result;
+        // recursion 没想好怎么做 想到的都很麻烦需要复制啥的
         if (B == null){
             return A;
         }
-
-        IntList result = new IntList(A.first, null);
-        IntList ptr0 = result;
-        IntList ptr1 = A.rest;
-        IntList ptr2 = B;
-
-        while (ptr1 != null){
-            ptr0.rest = new IntList(ptr1.first, null);
-            ptr0 = ptr0.rest;
-            ptr1 = ptr1.rest;
+        // base case
+        if (A == null){
+            return B;
         }
-        while (ptr2 != null){
-            ptr0.rest = new IntList(ptr2.first, null);
-            ptr0 = ptr0.rest;
-            ptr2 = ptr2.rest;
-        }
+        IntList temp = catenate(A.rest, B);
+        IntList result = new IntList(A.first, temp);
         return result;
-        // recursion 没想好怎么做 想到的都很麻烦需要复制啥的
     }
 
 
