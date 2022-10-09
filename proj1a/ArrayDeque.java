@@ -13,14 +13,14 @@ public class ArrayDeque<T> {
         nextLast = nextFirst + 1;
     }
 
-    public ArrayDeque(ArrayDeque other) {
-        T[] newItems = (T[]) new Object[other.items.length];
-        System.arraycopy(other, 0, newItems, 0, other.items.length);
-        items = newItems;
-        size = other.size;
-        nextFirst = other.nextFirst;
-        nextLast = other.nextLast;
-    }
+//    public ArrayDeque(ArrayDeque other) {
+//        T[] newItems = (T[]) new Object[other.items.length];
+//        System.arraycopy(other, 0, newItems, 0, other.items.length);
+//        items = newItems;
+//        size = other.size;
+//        nextFirst = other.nextFirst;
+//        nextLast = other.nextLast;
+//    }
 
     private void resize(int newsize) {
         // 更新items， nextFirst, nextLast; size不变
@@ -85,7 +85,7 @@ public class ArrayDeque<T> {
         // first<next 说明当前顺序为从左到右 first>next 说明first跑到右边去了 （因为满了会自动扩充，可以不用考虑）
         // first==next 还是说明first跑到右边去，然后向左移动与last都重叠了，此时还差一个item即满
         if (nextFirst < nextLast) {
-            for (int index = nextFirst + 1; index < nextLast; index++){
+            for (int index = nextFirst + 1; index < nextLast; index++) {
                 System.out.print(items[index]);
                 System.out.print(" ");
             }

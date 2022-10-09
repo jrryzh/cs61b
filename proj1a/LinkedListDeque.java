@@ -22,16 +22,16 @@ public class LinkedListDeque<T> {
         size = 0;
     }
 
-    public LinkedListDeque(LinkedListDeque other) {
-        sentinel = new TNode(null, null, null);
-        sentinel.next = sentinel;
-        sentinel.prev = sentinel;
-        TNode p = other.sentinel;
-        while (p.next != other.sentinel) {
-            this.addLast(p.next.item);
-            p = p.next;
-        }
-    }
+//    public LinkedListDeque(LinkedListDeque other) {
+//        sentinel = new TNode(null, null, null);
+//        sentinel.next = sentinel;
+//        sentinel.prev = sentinel;
+//        TNode p = other.sentinel;
+//        while (p.next != other.sentinel) {
+//            this.addLast(p.next.item);
+//            p = p.next;
+//        }
+//    }
 
     public void addFirst(T item) {
         TNode newItem = new TNode(item, sentinel.next, sentinel);
