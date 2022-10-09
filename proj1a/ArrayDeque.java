@@ -22,30 +22,62 @@ public class ArrayDeque<T> {
 //        nextLast = other.nextLast;
 //    }
 
+    private int resizeHelper(T[] sArray, T[] dArray, int sStart, int sEnd, int dIndex){
+        for (int i = sStart; i <= sEnd; i += 1){
+            dArray[dIndex] = sArray[i];
+            dIndex += 1;
+        }
+
+        return dIndex;
+    }
+
     private void resize(int newsize) {
         // 更新items， nextFirst, nextLast; size不变
         // 无论扩大还是缩小，应该都是填不满的，所以不用担心index越界
+        // 同样暂时没有考虑empty的情况
+        // first<last 说明1.当前顺序为从左到右 2.此时已经满了(此时 first+1 = last)
+        // first>=last 说明1.first或next越界且未满（first跑到右边去了或者next跑到左边去了）2.此时已经满了（此时last=0 first=length-1）
+
         T[] newItems = (T[]) new Object[newsize];
         int newNextFirst = newsize/4;
-        int index = newNextFirst + 1;
+        int newNextLast;
 
-        if (nextFirst < nextLast && size < items.length){
-            for (int i = nextFirst + 1; i <= nextLast - 1; i += 1){
-                newItems[index] = items[i];
-                index += 1;
+        if (nextFirst < nextLast) {
+            if (size < items.length) {
+                newNextLast = resizeHelper(items, newItems, nextFirst + 1, nextLast - 1, newNextFirst + 1);
+            } else {
+                int index = resizeHelper(items, newItems, newNextFirst + 1, items.length - 1, newNextFirst + 1);
+                newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
             }
         } else {
-            for (int i = nextFirst + 1; i <= items.length - 1; i += 1){
-                newItems[index] = items[i];
-                index += 1;
-            }
-            for (int i = 0; i <= nextLast - 1; i += 1) {
-                newItems[index] = items[i];
-                index += 1;
+            if (size < items.length) {
+                int index = resizeHelper(items, newItems, newNextFirst + 1, items.length - 1, newNextFirst + 1);
+                newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
+            } else {
+                newNextLast = resizeHelper(items, newItems, 0, items.length - 1, newNextFirst + 1);
             }
         }
-        int newNextLast = index;
 
+//        int newNextFirst = newsize/4;
+//        int index = newNextFirst + 1;
+//
+//        if (nextFirst < nextLast && size < items.length){
+//            for (int i = nextFirst + 1; i <= nextLast - 1; i += 1){
+//                newItems[index] = items[i];
+//                index += 1;
+//            }
+//        } else {
+//            for (int i = nextFirst + 1; i <= items.length - 1; i += 1){
+//                newItems[index] = items[i];
+//                index += 1;
+//            }
+//            for (int i = 0; i <= nextLast - 1; i += 1) {
+//                newItems[index] = items[i];
+//                index += 1;
+//            }
+//        }
+//        int newNextLast = index;
+//
         items = newItems;
         nextFirst = newNextFirst;
         nextLast = newNextLast;
@@ -97,29 +129,31 @@ public class ArrayDeque<T> {
         return size;
     }
 
+    private void printHelper(int start, int end){
+        for (int index = start; index <= end; index += 1){
+            System.out.print(items[index]);
+            System.out.print(" ");
+        }
+    }
+
     public void printDeque() {
         // 同样暂时没有考虑empty的情况
-        // first<next 说明1. 当前顺序为从左到右 2.此时已经满了
-        // first>next 说明first跑到右边去了
-        // first==next 还是说明first跑到右边去，然后向左移动与last都重叠了，此时还差一个item即满
-        if (nextFirst < nextLast && size() < items.length) {
-            for (int index = nextFirst + 1; index < nextLast; index++) {
-                System.out.print(items[index]);
-                System.out.print(" ");
+        // first<last 说明1.当前顺序为从左到右 2.此时已经满了(此时 first+1 = last)
+        // first>=last 说明1.first或next越界且未满（first跑到右边去了或者next跑到左边去了）2.此时已经满了（此时last=0 first=length-1）
+        if (nextFirst < nextLast) {
+            if (size < items.length) {
+                printHelper(nextFirst + 1, nextLast - 1);
+            } else {
+                printHelper(nextFirst + 1, items.length - 1);
+                printHelper(0, nextLast - 1);
             }
-            System.out.println();
         } else {
-            // 先打印first向右，到链表末尾的item们
-            for (int index = nextFirst + 1; index <= items.length - 1; index++) {
-                System.out.print(items[index]);
-                System.out.print(" ");
+            if (size < items.length) {
+                printHelper(nextFirst + 1, items.length - 1);
+                printHelper(0, nextLast - 1);
+            } else {
+                printHelper(0, items.length - 1);
             }
-            // 再打印链表开头向右，到last的item们
-            for (int index = 0; index < nextLast; index++) {
-                System.out.print(items[index]);
-                System.out.print(" ");
-            }
-            System.out.println();
         }
     }
 
