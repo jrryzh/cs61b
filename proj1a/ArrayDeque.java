@@ -9,7 +9,7 @@ public class ArrayDeque<T> {
     public ArrayDeque() {
         items = (T[]) new Object[8];
         size = 0;
-        nextFirst = items.length / 2;
+        nextFirst = items.length / 4;
         nextLast = nextFirst + 1;
     }
 
@@ -59,7 +59,7 @@ public class ArrayDeque<T> {
         items[nextLast] = item;
 
         // 检查是否需要nextLast到另一边
-        if (nextLast == items.length-1) {
+        if (nextLast == items.length - 1) {
             nextLast = 0;
         } else {
             nextLast += 1;
@@ -73,14 +73,10 @@ public class ArrayDeque<T> {
     }
 
     public boolean isEmpty() {
-        if (size == 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return size == 0;
     }
 
-    public int size(){
+    public int size() {
         return size;
     }
 
@@ -89,19 +85,19 @@ public class ArrayDeque<T> {
         // first<next 说明当前顺序为从左到右 first>next 说明first跑到右边去了 （因为满了会自动扩充，可以不用考虑）
         // first==next 还是说明first跑到右边去，然后向左移动与last都重叠了，此时还差一个item即满
         if (nextFirst < nextLast) {
-            for (int index = nextFirst+1; index < nextLast; index ++){
+            for (int index = nextFirst + 1; index < nextLast; index++){
                 System.out.print(items[index]);
                 System.out.print(" ");
             }
             System.out.println();
         } else {
             // 先打印first向右，到链表末尾的item们
-            for (int index = nextFirst + 1; index <= items.length - 1; index ++) {
+            for (int index = nextFirst + 1; index <= items.length - 1; index++) {
                 System.out.print(items[index]);
                 System.out.print(" ");
             }
             // 再打印链表开头向右，到last的item们
-            for (int index = 0; index < nextLast; index ++) {
+            for (int index = 0; index < nextLast; index++) {
                 System.out.print(items[index]);
                 System.out.print(" ");
             }
@@ -114,7 +110,7 @@ public class ArrayDeque<T> {
         T result;
 
         // 检查是否为null
-        if (this.isEmpty()) {
+        if (isEmpty()) {
             return null;
         }
 
@@ -132,7 +128,7 @@ public class ArrayDeque<T> {
 
         // 检查是否需要缩小array
         size -= 1;
-        if ((float) size() / items.length < 0.25) {
+        if ((float) size() / items.length < 0.25 && items.length > 16) {
             resize(items.length / RFACTOR);
         }
 
@@ -144,13 +140,13 @@ public class ArrayDeque<T> {
         T result;
 
         // 检查是否为null
-        if (this.isEmpty()) {
+        if (isEmpty()) {
             return null;
         }
 
         // 检查是否需要nextLast到另一边
         if (nextLast == 0) {
-            nextLast = items.length-1;
+            nextLast = items.length - 1;
             result = items[nextLast];
             items[nextLast] = null;
         } else {
@@ -161,7 +157,7 @@ public class ArrayDeque<T> {
 
         // 检查是否需要缩小array
         size -= 1;
-        if ((float) size() / items.length < 0.25) {
+        if ((float) size() / items.length < 0.25 && items.length > 16) {
             resize(items.length / RFACTOR);
         }
 
