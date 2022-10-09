@@ -46,12 +46,12 @@ public class ArrayDeque<T> {
             if (size < items.length) {
                 newNextLast = resizeHelper(items, newItems, nextFirst + 1, nextLast - 1, newNextFirst + 1);
             } else {
-                int index = resizeHelper(items, newItems, newNextFirst + 1, items.length - 1, newNextFirst + 1);
+                int index = resizeHelper(items, newItems, nextFirst + 1, items.length - 1, newNextFirst + 1);
                 newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
             }
         } else {
             if (size < items.length) {
-                int index = resizeHelper(items, newItems, newNextFirst + 1, items.length - 1, newNextFirst + 1);
+                int index = resizeHelper(items, newItems, nextFirst + 1, items.length - 1, newNextFirst + 1);
                 newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
             } else {
                 newNextLast = resizeHelper(items, newItems, 0, items.length - 1, newNextFirst + 1);
