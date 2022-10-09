@@ -84,9 +84,10 @@ public class ArrayDeque<T> {
 
     public void printDeque() {
         // 同样暂时没有考虑empty的情况
-        // first<next 说明当前顺序为从左到右 first>next 说明first跑到右边去了 （因为满了会自动扩充，可以不用考虑）
+        // first<next 说明1. 当前顺序为从左到右 2.此时已经满了
+        // first>next 说明first跑到右边去了
         // first==next 还是说明first跑到右边去，然后向左移动与last都重叠了，此时还差一个item即满
-        if (nextFirst < nextLast) {
+        if (nextFirst < nextLast && size() < items.length) {
             for (int index = nextFirst + 1; index < nextLast; index++) {
                 System.out.print(items[index]);
                 System.out.print(" ");
