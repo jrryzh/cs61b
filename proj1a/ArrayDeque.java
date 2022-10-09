@@ -25,15 +25,15 @@ public class ArrayDeque<T> {
     private void resize(int newsize) {
         // 更新items， nextFirst, nextLast; size不变
         // 无论扩大还是缩小，应该都是填不满的，所以不用担心index越界
-        T[] newitems = (T[]) new Object[newsize];
+        T[] newItems = (T[]) new Object[newsize];
         this.nextFirst = newsize / 4;
         int index = this.nextFirst + 1;
         for (T item: this.items) {
-            newitems[index] = item;
+            newItems[index] = item;
             index += 1;
         }
         this.nextLast = index;
-        this.items = newitems;
+        this.items = newItems;
     }
 
     public void addFirst(T item) {
@@ -121,11 +121,11 @@ public class ArrayDeque<T> {
         if (nextFirst == items.length - 1) {
             result = items[0];
             nextFirst = 0;
-            // items[nextFirst] = null;
+            items[nextFirst] = null;
         } else {
             result = items[nextFirst + 1];
             nextFirst += 1;
-            // items[nextFirst] = null;
+            items[nextFirst] = null;
         }
 
         // 检查是否需要缩小array
@@ -150,11 +150,11 @@ public class ArrayDeque<T> {
         if (nextLast == 0) {
             nextLast = items.length - 1;
             result = items[nextLast];
-            // items[nextLast] = null;
+            items[nextLast] = null;
         } else {
             nextLast -= 1;
             result = items[nextLast];
-            // items[nextLast] = null;
+            items[nextLast] = null;
         }
 
         // 检查是否需要缩小array
