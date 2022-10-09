@@ -22,8 +22,8 @@ public class ArrayDeque<T> {
 //        nextLast = other.nextLast;
 //    }
 
-    private int resizeHelper(T[] sArray, T[] dArray, int sStart, int sEnd, int dIndex){
-        for (int i = sStart; i <= sEnd; i += 1){
+    private int resizeHelper(T[] sArray, T[] dArray, int sStart, int sEnd, int dIndex) {
+        for (int i = sStart; i <= sEnd; i += 1) {
             dArray[dIndex] = sArray[i];
             dIndex += 1;
         }
@@ -39,19 +39,22 @@ public class ArrayDeque<T> {
         // first>=last 说明1.first或next越界且未满（first跑到右边去了或者next跑到左边去了）2.此时已经满了（此时last=0 first=length-1）
 
         T[] newItems = (T[]) new Object[newsize];
-        int newNextFirst = newsize/4;
+        int newNextFirst = newsize / 4;
         int newNextLast;
 
         if (nextFirst < nextLast) {
             if (size < items.length) {
-                newNextLast = resizeHelper(items, newItems, nextFirst + 1, nextLast - 1, newNextFirst + 1);
+                newNextLast = resizeHelper(items, newItems,
+                        nextFirst + 1, nextLast - 1, newNextFirst + 1);
             } else {
-                int index = resizeHelper(items, newItems, nextFirst + 1, items.length - 1, newNextFirst + 1);
+                int index = resizeHelper(items, newItems,
+                        nextFirst + 1, items.length - 1, newNextFirst + 1);
                 newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
             }
         } else {
             if (size < items.length) {
-                int index = resizeHelper(items, newItems, nextFirst + 1, items.length - 1, newNextFirst + 1);
+                int index = resizeHelper(items, newItems,
+                        nextFirst + 1, items.length - 1, newNextFirst + 1);
                 newNextLast = resizeHelper(items, newItems, 0, nextLast - 1, index);
             } else {
                 newNextLast = resizeHelper(items, newItems, 0, items.length - 1, newNextFirst + 1);
@@ -129,8 +132,8 @@ public class ArrayDeque<T> {
         return size;
     }
 
-    private void printHelper(int start, int end){
-        for (int index = start; index <= end; index += 1){
+    private void printHelper(int start, int end) {
+        for (int index = start; index <= end; index += 1) {
             System.out.print(items[index]);
             System.out.print(" ");
         }
