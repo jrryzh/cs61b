@@ -37,6 +37,11 @@ public class ArrayDeque<T> {
     }
 
     public void addFirst(T item) {
+        // 查看是否需要扩大（size是否满了）
+        if (size() == items.length) {
+            resize(size() * RFACTOR);
+        }
+
         // 共需要检查改变item，size， nextFirst
         items[nextFirst] = item;
 
@@ -47,14 +52,15 @@ public class ArrayDeque<T> {
             nextFirst -= 1;
         }
 
-        // 查看是否需要扩大（size是否满了）
         size += 1;
-        if (size() == items.length) {
-            resize(size() * RFACTOR);
-        }
     }
 
     public void addLast(T item) {
+        // 查看是否需要扩大
+        if (size() == items.length) {
+            resize(size() * RFACTOR);
+        }
+
         // 共需要检查改变item，size， nextLast
         items[nextLast] = item;
 
@@ -65,11 +71,7 @@ public class ArrayDeque<T> {
             nextLast += 1;
         }
 
-        // 查看是否需要扩大
         size += 1;
-        if (size() == items.length) {
-            resize(size() * RFACTOR);
-        }
     }
 
     public boolean isEmpty() {
@@ -119,11 +121,11 @@ public class ArrayDeque<T> {
         if (nextFirst == items.length - 1) {
             result = items[0];
             nextFirst = 0;
-            items[nextFirst] = null;
+            // items[nextFirst] = null;
         } else {
             result = items[nextFirst + 1];
             nextFirst += 1;
-            items[nextFirst] = null;
+            // items[nextFirst] = null;
         }
 
         // 检查是否需要缩小array
@@ -148,11 +150,11 @@ public class ArrayDeque<T> {
         if (nextLast == 0) {
             nextLast = items.length - 1;
             result = items[nextLast];
-            items[nextLast] = null;
+            // items[nextLast] = null;
         } else {
             nextLast -= 1;
             result = items[nextLast];
-            items[nextLast] = null;
+            // items[nextLast] = null;
         }
 
         // 检查是否需要缩小array
