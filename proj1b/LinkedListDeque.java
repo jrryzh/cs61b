@@ -1,6 +1,6 @@
 import org.junit.Test;
 
-public class LinkedListDeque<T> implements Deque<T>{
+public class LinkedListDeque<T> implements Deque<T> {
 
     private class TNode {
         T item;
