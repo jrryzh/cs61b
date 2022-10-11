@@ -28,14 +28,14 @@ public class Palindrome {
         if (d.size() == 0 || d.size() == 1) {
             return true;
         }
-        return cc.equalChars((char) d.removeFirst(), (char) d.removeLast()) && helperIsPalindrome(d, cc);
+        return cc.equalChars((char) d.removeFirst(), (char) d.removeLast())
+                && helperIsPalindrome(d, cc);
     }
 
     /** Check Palindrome using CharacterComparator */
-    public boolean isPalindrome(String word, CharacterComparator cc){
+    public boolean isPalindrome(String word, CharacterComparator cc) {
         Palindrome palindrome = new Palindrome();
         Deque d = palindrome.wordToDeque(word);
         return helperIsPalindrome(d, cc);
     }
-
 }
