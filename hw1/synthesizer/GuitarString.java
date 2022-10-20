@@ -34,10 +34,10 @@ public class GuitarString {
         //
         //       Make sure that your random numbers are different from each other.
         int count = buffer.fillCount();
-        for(int i = 0; i < count; i += 1) {
+        for (int i = 0; i < count; i += 1) {
             buffer.dequeue();
         }
-        for(int i = 0; i < count; i += 1) {
+        for (int i = 0; i < count; i += 1) {
             buffer.enqueue(Math.random() - 0.5);
         }
     }
