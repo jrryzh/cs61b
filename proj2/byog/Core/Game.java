@@ -2,6 +2,10 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+
+import java.util.Arrays;
+import java.util.Random;
 
 public class Game {
     TERenderer ter = new TERenderer();
@@ -32,7 +36,51 @@ public class Game {
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
 
-        TETile[][] finalWorldFrame = null;
+        // 暂不处理seed和input到关系
+        long SEED = 198;
+        Random RANDOM = new Random(SEED);
+
+        ter.initialize(WIDTH, HEIGHT);
+        // 初始化
+        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                finalWorldFrame[x][y] = Tileset.NOTHING;
+            }
+        }
+        // 添加房间
+        int roomNum = RANDOM.nextInt(40) + 40;
+        int roomCounter = 0;
+        Room[] roomsList = new Room[roomNum];
+        for (int n = 0; n < roomNum; n += 1) {
+            Room r = new Room(RANDOM.nextInt(WIDTH), RANDOM.nextInt(HEIGHT), RANDOM.nextInt(10) + 3,
+                    RANDOM.nextInt(10) + 3);
+            if (r.isInMap(finalWorldFrame) && !r.isOverlap(finalWorldFrame)) {
+                roomsList[roomCounter] = r;
+                roomCounter += 1;
+                r.makeFloor(finalWorldFrame);
+                r.makeWall(finalWorldFrame);
+            }
+        }
+        // 房间排序
+        Room[] finalRoomsList = new Room[roomCounter];
+        for (int i = 0; i <= roomCounter - 1; i += 1) {
+            finalRoomsList[i] = roomsList[i];
+        }
+        Arrays.sort(finalRoomsList);
+        // 绘制走廊
+        for (int i = 0; i <= roomCounter - 2; i += 1) {
+            Room r1 = roomsList[i];
+            Room r2 = roomsList[i + 1];
+            Position startPos = new Position(r1.posX + RANDOM.nextInt(r1.width), r1.posY + RANDOM.nextInt(r1.height));
+            Position endPos = new Position(r2.posX + RANDOM.nextInt(r2.width), r2.posY + RANDOM.nextInt(r2.height));
+            Hallway h = new Hallway(startPos, endPos, RANDOM);
+            h.makeFloor(finalWorldFrame);
+        }
+
+
+        ter.renderFrame(finalWorldFrame);
+
         return finalWorldFrame;
     }
 }
