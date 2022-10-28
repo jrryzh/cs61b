@@ -37,7 +37,7 @@ public class Game {
         // drawn if the same inputs had been given to playWithKeyboard().
 
         // 暂不处理seed和input到关系
-        long SEED = 198;
+        long SEED = 173;
         Random RANDOM = new Random(SEED);
 
         ter.initialize(WIDTH, HEIGHT);
@@ -75,7 +75,7 @@ public class Game {
             Position startPos = new Position(r1.posX + RANDOM.nextInt(r1.width), r1.posY + RANDOM.nextInt(r1.height));
             Position endPos = new Position(r2.posX + RANDOM.nextInt(r2.width), r2.posY + RANDOM.nextInt(r2.height));
             Hallway h = new Hallway(startPos, endPos, RANDOM);
-            h.makeFloor(finalWorldFrame);
+            h.make(finalWorldFrame);
         }
 
 

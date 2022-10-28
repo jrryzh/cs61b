@@ -34,7 +34,7 @@ public class Hallway {
         }
     }
 
-    public void floorHelper(TETile[][] world, Position startPos, Position endPos) {
+    public void makeHelper(TETile[][] world, Position startPos, Position endPos) {
         int dx = 0;
         int dy = 0;
         if (startPos.x == endPos.x) {
@@ -56,12 +56,12 @@ public class Hallway {
         }
     }
 
-    public void makeFloor(TETile[][] world) {
+    public void make(TETile[][] world) {
         if (type.equals("Vertical") || type.equals("Horizontal")) {
-            floorHelper(world, startPos, endPos);
+            makeHelper(world, startPos, endPos);
         } else if (type.equals("VFirst") || type.equals("HFirst")) {
-            floorHelper(world, startPos, turnPos);
-            floorHelper(world, turnPos, endPos);
+            makeHelper(world, startPos, turnPos);
+            makeHelper(world, turnPos, endPos);
         }
     }
 
