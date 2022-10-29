@@ -23,9 +23,9 @@ public class PartsUtils {
             world[posX + width][y] = Tileset.WALL;
         }
     }
-
-    public static void main(String[] args) {
-        Game g = new Game();
-        g.playWithInputString("123");
-    }
+//
+//    public static void main(String[] args) {
+//        Game g = new Game();
+//        g.playWithInputString("123");
+//    }
 }

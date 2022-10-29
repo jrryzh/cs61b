@@ -4,6 +4,7 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -32,12 +33,25 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        // TODO: Fill out this method to run the game using the input passed in,
-        // and return a 2D tile representation of the world that would have been
-        // drawn if the same inputs had been given to playWithKeyboard().
+        TETile[][] finalWorldFrame = null;
+        char firstChar = input.charAt(0);
+        char lastChar = input.charAt(input.length() - 1);
+        if (firstChar == 'n') {
+            finalWorldFrame = startNewGame(input);
+        } else if (firstChar == 'l') {
+            finalWorldFrame = loadGame();
+        } else if (firstChar == 'q') {
+            System.exit(0);
+        }
+        if (lastChar == 's') {
+            saveGame(finalWorldFrame);
+        }
+        return finalWorldFrame;
+    }
 
-        // 暂不处理seed和input到关系
-        long SEED = 173;
+    private TETile[][] startNewGame(String input) {
+        // 转换得到seed
+        long SEED = getNumberFromInput(input);
         Random RANDOM = new Random(SEED);
 
         ter.initialize(WIDTH, HEIGHT);
@@ -78,9 +92,45 @@ public class Game {
             h.make(finalWorldFrame);
         }
 
-
         ter.renderFrame(finalWorldFrame);
 
         return finalWorldFrame;
     }
+
+    private void saveGame(TETile[][] finalWorldFrame) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("save.txt"));
+            out.writeObject(finalWorldFrame);
+//            out.writeObject(Player.getPos());
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TETile[][] loadGame() {
+        TETile[][] finalWorldFrame = null;
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("savefile.txt"));
+            finalWorldFrame = (TETile[][]) in.readObject();
+//            Player.setPos((Position) in.readObject());
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return finalWorldFrame;
+    }
+
+    private long getNumberFromInput(String input) {
+        int start = 0;
+        int end = input.length();
+        if (input.charAt(start) == 'n') {
+            start += 1;
+        }
+        if (input.charAt(end) == 's') {
+            end -= 1;
+        }
+        return Long.parseLong(input.substring(start, end));
+    }
+
 }
