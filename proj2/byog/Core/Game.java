@@ -4,7 +4,11 @@ import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-import java.io.*;
+//import java.io.*;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -35,7 +39,6 @@ public class Game {
     public TETile[][] playWithInputString(String input) {
         TETile[][] finalWorldFrame = null;
         char firstChar = input.charAt(0);
-        char lastChar = input.charAt(input.length() - 1);
         if (firstChar == 'n') {
             finalWorldFrame = startNewGame(input);
         } else if (firstChar == 'l') {
@@ -75,14 +78,12 @@ public class Game {
         }
         // 房间排序
         Room[] finalRoomsList = new Room[roomCounter];
-        for (int i = 0; i <= roomCounter - 1; i += 1) {
-            finalRoomsList[i] = roomsList[i];
-        }
+        System.arraycopy(roomsList, 0, finalRoomsList, 0, roomCounter - 1 + 1);
         Arrays.sort(finalRoomsList);
         // 绘制走廊
         for (int i = 0; i <= roomCounter - 2; i += 1) {
-            Room r1 = roomsList[i];
-            Room r2 = roomsList[i + 1];
+            Room r1 = finalRoomsList[i];
+            Room r2 = finalRoomsList[i + 1];
             Position startPos = new Position(r1.posX + RANDOM.nextInt(r1.width), r1.posY + RANDOM.nextInt(r1.height));
             Position endPos = new Position(r2.posX + RANDOM.nextInt(r2.width), r2.posY + RANDOM.nextInt(r2.height));
             Hallway h = new Hallway(startPos, endPos, RANDOM);
@@ -118,7 +119,7 @@ public class Game {
 
     private long getNumberFromInput(String input) {
         int start = 0;
-        int end = input.length();
+        int end = input.indexOf('s');
         if (input.charAt(start) == 'n') {
             start += 1;
         }
