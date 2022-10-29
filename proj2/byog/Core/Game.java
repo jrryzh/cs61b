@@ -50,11 +50,9 @@ public class Game {
     }
 
     private TETile[][] startNewGame(String input) {
-        // 转换得到seed
+        // input转换为RANDOM
         long SEED = getNumberFromInput(input);
         Random RANDOM = new Random(SEED);
-
-        ter.initialize(WIDTH, HEIGHT);
         // 初始化
         TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
         for (int x = 0; x < WIDTH; x += 1) {
@@ -89,8 +87,6 @@ public class Game {
             Hallway h = new Hallway(startPos, endPos, RANDOM);
             h.make(finalWorldFrame);
         }
-
-        ter.renderFrame(finalWorldFrame);
 
         return finalWorldFrame;
     }
