@@ -50,44 +50,8 @@ public class Game {
     }
 
     private TETile[][] startNewGame(String input) {
-        // input转换为RANDOM
-        long SEED = getNumberFromInput(input);
-        Random RANDOM = new Random(SEED);
-        // 初始化
-        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
-        for (int x = 0; x < WIDTH; x += 1) {
-            for (int y = 0; y < HEIGHT; y += 1) {
-                finalWorldFrame[x][y] = Tileset.NOTHING;
-            }
-        }
-        // 添加房间
-        int roomNum = RANDOM.nextInt(40) + 40;
-        int roomCounter = 0;
-        Room[] roomsList = new Room[roomNum];
-        for (int n = 0; n < roomNum; n += 1) {
-            Room r = new Room(RANDOM.nextInt(WIDTH), RANDOM.nextInt(HEIGHT), RANDOM.nextInt(10) + 3,
-                    RANDOM.nextInt(10) + 3);
-            if (r.isInMap(finalWorldFrame) && !r.isOverlap(finalWorldFrame)) {
-                roomsList[roomCounter] = r;
-                roomCounter += 1;
-                r.makeFloor(finalWorldFrame);
-                r.makeWall(finalWorldFrame);
-            }
-        }
-        // 房间排序
-        Room[] finalRoomsList = new Room[roomCounter];
-        System.arraycopy(roomsList, 0, finalRoomsList, 0, roomCounter - 1 + 1);
-        Arrays.sort(finalRoomsList);
-        // 绘制走廊
-        for (int i = 0; i <= roomCounter - 2; i += 1) {
-            Room r1 = finalRoomsList[i];
-            Room r2 = finalRoomsList[i + 1];
-            Position startPos = new Position(r1.posX + RANDOM.nextInt(r1.width), r1.posY + RANDOM.nextInt(r1.height));
-            Position endPos = new Position(r2.posX + RANDOM.nextInt(r2.width), r2.posY + RANDOM.nextInt(r2.height));
-            Hallway h = new Hallway(startPos, endPos, RANDOM);
-            h.make(finalWorldFrame);
-        }
-
+        long seed = getNumberFromInput(input);
+        TETile[][] finalWorldFrame = generateWorld(seed);
         return finalWorldFrame;
     }
 
@@ -113,6 +77,19 @@ public class Game {
         return finalWorldFrame;
     }
 
+    private TETile[][] generateWorld(long seed) {
+        Random random = new Random(seed);
+        // 创建world
+        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        // 初始化
+        initWorld(finalWorldFrame);
+        // 添加房间并排序
+        Room[] RoomsList = addRooms(finalWorldFrame, random);
+        // 绘制走廊
+        addHallways(finalWorldFrame, RoomsList, random);
+        return finalWorldFrame;
+    }
+
     private long getNumberFromInput(String input) {
         int start = 0;
         int end = input.indexOf('s');
@@ -122,4 +99,46 @@ public class Game {
         return Long.parseLong(input.substring(start, end));
     }
 
+    private void initWorld(TETile[][] world) {
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                world[x][y] = Tileset.NOTHING;
+            }
+        }
+    }
+
+    private Room[] addRooms(TETile[][] world, Random random) {
+        int roomNum = random.nextInt(40) + 40;
+        int roomCounter = 0;
+        Room[] roomsList = new Room[roomNum];
+        for (int n = 0; n < roomNum; n += 1) {
+            Room r = new Room(random.nextInt(WIDTH), random.nextInt(HEIGHT), random.nextInt(10) + 3,
+                    random.nextInt(10) + 3);
+            if (r.isInMap(world) && !r.isOverlap(world)) {
+                roomsList[roomCounter] = r;
+                roomCounter += 1;
+                r.makeFloor(world);
+                r.makeWall(world);
+            }
+        }
+        return sortRoomsList(roomsList, roomCounter);
+    }
+
+    private Room[] sortRoomsList(Room[] roomsList, int roomCounter) {
+        Room[] finalRoomsList = new Room[roomCounter];
+        System.arraycopy(roomsList, 0, finalRoomsList, 0, roomCounter);
+        Arrays.sort(finalRoomsList);
+        return finalRoomsList;
+    }
+
+    private void addHallways(TETile[][] world, Room[] roomsList, Random random) {
+        for (int i = 0; i <= roomsList.length - 2; i += 1) {
+            Room r1 = roomsList[i];
+            Room r2 = roomsList[i + 1];
+            Position startPos = new Position(r1.posX + random.nextInt(r1.width), r1.posY + random.nextInt(r1.height));
+            Position endPos = new Position(r2.posX + random.nextInt(r2.width), r2.posY + random.nextInt(r2.height));
+            Hallway h = new Hallway(startPos, endPos, random);
+            h.make(world);
+        }
+    }
 }
