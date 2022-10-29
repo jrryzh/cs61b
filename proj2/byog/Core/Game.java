@@ -43,9 +43,6 @@ public class Game {
         } else if (firstChar == 'q') {
             System.exit(0);
         }
-        if (lastChar == 's') {
-            saveGame(finalWorldFrame);
-        }
         return finalWorldFrame;
     }
 
@@ -101,7 +98,6 @@ public class Game {
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("save.txt"));
             out.writeObject(finalWorldFrame);
-//            out.writeObject(Player.getPos());
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,7 +109,6 @@ public class Game {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream("savefile.txt"));
             finalWorldFrame = (TETile[][]) in.readObject();
-//            Player.setPos((Position) in.readObject());
             in.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,9 +121,6 @@ public class Game {
         int end = input.length();
         if (input.charAt(start) == 'n') {
             start += 1;
-        }
-        if (input.charAt(end) == 's') {
-            end -= 1;
         }
         return Long.parseLong(input.substring(start, end));
     }
