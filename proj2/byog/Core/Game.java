@@ -3,13 +3,17 @@ package byog.Core;
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
+import edu.princeton.cs.introcs.StdDraw;
 
 //import java.io.*;
+import java.awt.*;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
 public class Game {
@@ -22,6 +26,15 @@ public class Game {
      * Method used for playing a fresh game. The game should start from the main menu.
      */
     public void playWithKeyboard() {
+        startMenu();
+        String choice = makeChoice();
+        if (choice.equals("n")) {
+            newGame();
+        } else if (choice.equals("l")) {
+            loadGame();
+        } else if (choice.equals("q")) {
+            System.exit(0);
+        }
     }
 
     /**
@@ -33,6 +46,7 @@ public class Game {
      * world. However, the behavior is slightly different. After playing with "n123sss:q", the game
      * should save, and thus if we then called playWithInputString with the string "l", we'd expect
      * to get the exact same world back again, since this corresponds to loading the saved game.
+     *
      * @param input the input string to feed to your program
      * @return the 2D TETile[][] representing the state of the world
      */
@@ -40,41 +54,87 @@ public class Game {
         TETile[][] finalWorldFrame = null;
         char firstChar = input.charAt(0);
         if (firstChar == 'n') {
-            finalWorldFrame = startNewGame(input);
+            finalWorldFrame = newGame(input);
         } else if (firstChar == 'l') {
-            finalWorldFrame = loadGame();
+            finalWorldFrame = loadGame(input);
         } else if (firstChar == 'q') {
             System.exit(0);
         }
         return finalWorldFrame;
     }
 
-    private TETile[][] startNewGame(String input) {
-        long seed = getNumberFromInput(input);
-        TETile[][] finalWorldFrame = generateWorld(seed);
+    private TETile[][] newGame(String input) {
+        TETile[][] finalWorldFrame = null;
+        // 处理input
+        HashMap<String, String> inputMap = processInput(input);
+        // 由seed生成世界和人物
+        finalWorldFrame = generateWorld(Long.parseLong(inputMap.get("seed")));
+        Player player = new Player(finalWorldFrame, Long.parseLong(inputMap.get("seed")));
+        // 由steps完成游戏
+        finalWorldFrame = playGame(finalWorldFrame, player, inputMap.get("steps"));
+        // 由input决定是否保存游戏
+        if (inputMap.containsKey("save")) {
+            saveGame(finalWorldFrame, player);
+        }
+
         return finalWorldFrame;
     }
 
-    private void saveGame(TETile[][] finalWorldFrame) {
+    private void newGame() {
+        Long seed = keyboardSeed();
+        TETile[][] finalWorldFrame = generateWorld(seed);
+        Player player = new Player(finalWorldFrame, seed);
+        playGame(finalWorldFrame, player);
+    }
+
+    private void saveGame(TETile[][] finalWorldFrame, Player player) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("save.txt"));
             out.writeObject(finalWorldFrame);
+            out.writeObject(player);
             out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private TETile[][] loadGame() {
+    private TETile[][] loadGame(String input) {
         TETile[][] finalWorldFrame = null;
+        Player player = null;
+        // 处理input
+        HashMap<String, String> inputMap = processInput(input);
+        // 加载世界
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream("savefile.txt"));
             finalWorldFrame = (TETile[][]) in.readObject();
+            player = (Player) in.readObject();
             in.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        // 由steps运行游戏
+        finalWorldFrame = playGame(finalWorldFrame, player, inputMap.get("steps"));
+        // 由input决定是否保存游戏
+        if (inputMap.containsKey("save")) {
+            saveGame(finalWorldFrame, player);
+        }
+
         return finalWorldFrame;
+    }
+
+    private void loadGame() {
+        TETile[][] finalWorldFrame = null;
+        Player player = null;
+        // 加载世界
+        try {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("savefile.txt"));
+            finalWorldFrame = (TETile[][]) in.readObject();
+            player = (Player) in.readObject();
+            in.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        playGame(finalWorldFrame, player);
     }
 
     private TETile[][] generateWorld(long seed) {
@@ -90,13 +150,26 @@ public class Game {
         return finalWorldFrame;
     }
 
-    private long getNumberFromInput(String input) {
-        int start = 0;
-        int end = input.indexOf('s');
-        if (input.charAt(start) == 'n') {
-            start += 1;
+    // 只有N开头的有seed，都有steps，只有保存的有key"save"
+    private HashMap<String, String> processInput(String input) {
+        // 设置变量及input变小写
+        int midIndex;
+        input = input.toLowerCase();
+        // 由specs所说，开头均为“N#S” or “L”
+        HashMap<String, String> map = new HashMap<>();
+        if (input.charAt(0) == 'n') {
+            midIndex = input.indexOf("s");
+            map.put("seed", input.substring(1, input.indexOf("s")));
+        } else {
+            midIndex = input.indexOf("l");
         }
-        return Long.parseLong(input.substring(start, end));
+        if (input.contains(":")) {
+            map.put("steps", input.substring(midIndex + 1, input.indexOf(":")));
+            map.put("save", ":q");
+        } else {
+            map.put("steps", input.substring(midIndex + 1));
+        }
+        return map;
     }
 
     private void initWorld(TETile[][] world) {
@@ -140,5 +213,95 @@ public class Game {
             Hallway h = new Hallway(startPos, endPos, random);
             h.make(world);
         }
+    }
+
+    private TETile[][] playGame(TETile[][] world, Player player, String steps) {
+        for (int i = 0; i < steps.length(); i += 1) {
+            player.move(world, steps.charAt(i));
+        }
+        return world;
+    }
+
+    private TETile[][] playGame(TETile[][] world, Player player) {
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT);
+        ter.renderFrame(world);
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            char s = StdDraw.nextKeyTyped();
+            if (s == ':') {
+                if (nextQ()) {
+                    saveGame(world, player);
+                    System.exit(0);
+                }
+            } else {
+                playGame(world, player, String.valueOf(s));
+                ter.renderFrame(world);
+            }
+        }
+    }
+
+    private boolean nextQ() {
+        char s;
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            s = StdDraw.nextKeyTyped();
+            break;
+        }
+        return (s == 'q');
+    }
+
+    private void startMenu() {
+        // @Source: MemoryGameSolution.java
+        StdDraw.setCanvasSize(WIDTH * 16, (HEIGHT + 1) * 16);
+        Font font = new Font("Monaco", Font.BOLD, 30);
+        StdDraw.setFont(font);
+        StdDraw.setXscale(0, WIDTH);
+        StdDraw.setYscale(0, HEIGHT + 1);
+        StdDraw.clear(Color.BLACK);
+        StdDraw.enableDoubleBuffering();
+
+        Font smallFont = new Font("Monaco", Font.BOLD, 20);
+        Font bigFont = new Font("Monaco", Font.BOLD, 35);
+        StdDraw.setFont(bigFont);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.text(WIDTH / 2, HEIGHT * 3 / 4, "CS61B: THE GAME");
+        StdDraw.setFont(smallFont);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 + 2, "NEW GAME (N)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2, "LOAD GAME (L)");
+        StdDraw.text(WIDTH / 2, HEIGHT / 2 - 2, "QUIT (Q)");
+        StdDraw.show();
+    }
+
+    private String makeChoice() {
+        String choice = "";
+        while (choice.equals("")) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            choice = String.valueOf(StdDraw.nextKeyTyped());
+        }
+        return choice;
+    }
+
+    private Long keyboardSeed() {
+        StringBuilder seed = new StringBuilder();
+        while (true) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            char s = StdDraw.nextKeyTyped();
+            if (s == 's') {
+                break;
+            } else {
+                seed.append(s);
+            }
+        }
+        return Long.parseLong(seed.toString());
     }
 }
