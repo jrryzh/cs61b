@@ -12,7 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Random;
 
 public class Game {
@@ -27,12 +26,16 @@ public class Game {
     public void playWithKeyboard() {
         startMenu();
         String choice = makeChoice();
-        if (choice.equals("n")) {
-            newGame();
-        } else if (choice.equals("l")) {
-            loadGame();
-        } else if (choice.equals("q")) {
-            System.exit(0);
+        switch (choice) {
+            case "n":
+                newGame();
+                break;
+            case "l":
+                loadGame();
+                break;
+            case "q":
+                System.exit(0);
+                break;
         }
     }
 
@@ -63,38 +66,20 @@ public class Game {
     }
 
     private TETile[][] newGame(String input) {
-        TETile[][] finalWorldFrame = null;
+        TETile[][] finalWorldFrame;
         // 处理input
         HashMap<String, String> inputMap = processInput(input);
         // 由seed生成世界和人物
         finalWorldFrame = generateWorld(Long.parseLong(inputMap.get("seed")));
         Player player = new Player(finalWorldFrame, Long.parseLong(inputMap.get("seed")));
         // 由steps完成游戏
-        finalWorldFrame = playGame(finalWorldFrame, player, inputMap.get("steps"));
+        playGame(finalWorldFrame, player, inputMap.get("steps"));
         // 由input决定是否保存游戏
         if (inputMap.containsKey("save")) {
             saveGame(finalWorldFrame, player);
         }
 
         return finalWorldFrame;
-    }
-
-    private void newGame() {
-        Long seed = keyboardSeed();
-        TETile[][] finalWorldFrame = generateWorld(seed);
-        Player player = new Player(finalWorldFrame, seed);
-        playGame(finalWorldFrame, player);
-    }
-
-    private void saveGame(TETile[][] finalWorldFrame, Player player) {
-        try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("savefile.txt"));
-            out.writeObject(finalWorldFrame);
-            out.writeObject(player);
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private TETile[][] loadGame(String input) {
@@ -112,13 +97,20 @@ public class Game {
             e.printStackTrace();
         }
         // 由steps运行游戏
-        finalWorldFrame = playGame(finalWorldFrame, player, inputMap.get("steps"));
+        playGame(finalWorldFrame, player, inputMap.get("steps"));
         // 由input决定是否保存游戏
         if (inputMap.containsKey("save")) {
             saveGame(finalWorldFrame, player);
         }
 
         return finalWorldFrame;
+    }
+
+    private void newGame() {
+        long seed = keyboardSeed();
+        TETile[][] finalWorldFrame = generateWorld(seed);
+        Player player = new Player(finalWorldFrame, seed);
+        playGame(finalWorldFrame, player);
     }
 
     private void loadGame() {
@@ -134,6 +126,17 @@ public class Game {
             e.printStackTrace();
         }
         playGame(finalWorldFrame, player);
+    }
+
+    private void saveGame(TETile[][] finalWorldFrame, Player player) {
+        try {
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("savefile.txt"));
+            out.writeObject(finalWorldFrame);
+            out.writeObject(player);
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private TETile[][] generateWorld(long seed) {
@@ -215,8 +218,11 @@ public class Game {
     }
 
     private TETile[][] playGame(TETile[][] world, Player player, String steps) {
+        ter.initialize(WIDTH, HEIGHT);
+        ter.renderFrame(world);
         for (int i = 0; i < steps.length(); i += 1) {
             player.move(world, steps.charAt(i));
+            ter.renderFrame(world);
         }
         return world;
     }

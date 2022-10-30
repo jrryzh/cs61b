@@ -55,7 +55,7 @@ public class Player implements Serializable {
 
     // 真实移动
     public void move(TETile[][] world, int dx, int dy) {
-        if (Position.isInMap(world, pos.x + dx, pos.y + dy) && world[pos.x + dx][pos.y + dy] == Tileset.FLOOR) {
+        if (Position.isInMap(world, pos.x + dx, pos.y + dy) && world[pos.x + dx][pos.y + dy].description().equals("floor")) {
             world[pos.x][pos.y] = Tileset.FLOOR;
             pos = pos.move(dx, dy);
             world[pos.x][pos.y] = Tileset.PLAYER;
