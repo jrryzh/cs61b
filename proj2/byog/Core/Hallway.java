@@ -3,22 +3,23 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Hallway {
+public class Hallway implements Serializable {
     Position startPos, endPos, turnPos;
     String type;
-    Random RANDOM;
+    Random random;
 
     /**
      * Constructor
      * 其中所有所有xy坐标均为hallway内部的floor的坐标，wall围绕添加即可
      */
-    public Hallway(Position startPos, Position endPos, Random RANDOM) {
+    public Hallway(Position startPos, Position endPos, Random random) {
         this.startPos = startPos;
         this.endPos = endPos;
-        this.RANDOM = RANDOM;
-        int p = RANDOM.nextInt(10);
+        this.random = random;
+        int p = random.nextInt(10);
         if (startPos.x == endPos.x) {
             type = "Vertical";
         } else if (startPos.y == endPos.y) {
@@ -34,23 +35,23 @@ public class Hallway {
         }
     }
 
-    public void makeHelper(TETile[][] world, Position startPos, Position endPos) {
+    public void makeHelper(TETile[][] world, Position startP, Position endP) {
         int dx = 0;
         int dy = 0;
-        if (startPos.x == endPos.x) {
-            if (startPos.y < endPos.y) {
+        if (startP.x == endP.x) {
+            if (startP.y < endP.y) {
                 dy = 1;
             } else {
                 dy = -1;
             }
-        } else if (startPos.y == endPos.y) {
-            if (startPos.x < endPos.x) {
+        } else if (startP.y == endP.y) {
+            if (startP.x < endP.x) {
                 dx = 1;
             } else {
                 dx = -1;
             }
         }
-        for (Position pos = startPos; pos.x != endPos.x || pos.y != endPos.y; pos = pos.move(dx, dy)) {
+        for (Position pos = startP; pos.x != endP.x || pos.y != endP.y; pos = pos.move(dx, dy)) {
             world[pos.x][pos.y] = Tileset.FLOOR;
             wallHelper(world, pos);
         }

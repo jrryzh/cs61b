@@ -2,7 +2,9 @@ package byog.Core;
 
 import byog.TileEngine.TETile;
 
-public class Position {
+import java.io.Serializable;
+
+public class Position implements Serializable {
     int x, y;
 
     public Position(int x, int y) {

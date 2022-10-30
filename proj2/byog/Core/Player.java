@@ -3,9 +3,10 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Player {
+public class Player implements Serializable {
     // 初始化位置
     Position pos;
 

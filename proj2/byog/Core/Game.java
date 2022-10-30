@@ -215,14 +215,9 @@ public class Game {
     }
 
     private TETile[][] playGame(TETile[][] world, Player player, String steps) {
-//        TERenderer ter = new TERenderer();
-//        ter.initialize(WIDTH, HEIGHT);
-//        ter.renderFrame(world);
         for (int i = 0; i < steps.length(); i += 1) {
             player.move(world, steps.charAt(i));
-//            ter.renderFrame(world);
         }
-
         return world;
     }
 
