@@ -5,7 +5,6 @@ import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 
-//import java.io.*;
 import java.awt.*;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
@@ -89,7 +88,7 @@ public class Game {
 
     private void saveGame(TETile[][] finalWorldFrame, Player player) {
         try {
-            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("save.txt"));
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("savefile.txt"));
             out.writeObject(finalWorldFrame);
             out.writeObject(player);
             out.close();
@@ -216,9 +215,14 @@ public class Game {
     }
 
     private TETile[][] playGame(TETile[][] world, Player player, String steps) {
+//        TERenderer ter = new TERenderer();
+//        ter.initialize(WIDTH, HEIGHT);
+//        ter.renderFrame(world);
         for (int i = 0; i < steps.length(); i += 1) {
             player.move(world, steps.charAt(i));
+//            ter.renderFrame(world);
         }
+
         return world;
     }
 

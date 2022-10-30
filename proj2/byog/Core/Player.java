@@ -35,7 +35,7 @@ public class Player {
     // 根据指令移动
     public void move(TETile[][] world, char step) {
         switch (step) {
-            case 'w' :
+            case 'w':
                 this.move(world, 0, 1);
                 break;
             case 's':
@@ -54,10 +54,10 @@ public class Player {
 
     // 真实移动
     public void move(TETile[][] world, int dx, int dy) {
-        if (world[pos.x + dx][pos.y + dy] == Tileset.FLOOR) {
+        if (Position.isInMap(world, pos.x + dx, pos.y + dy) && world[pos.x + dx][pos.y + dy] == Tileset.FLOOR) {
             world[pos.x][pos.y] = Tileset.FLOOR;
-            world[pos.x + dx][pos.y + dy] = Tileset.PLAYER;
             pos = pos.move(dx, dy);
+            world[pos.x][pos.y] = Tileset.PLAYER;
         }
     }
 
