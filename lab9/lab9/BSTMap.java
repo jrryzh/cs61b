@@ -44,7 +44,15 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  or null if this map contains no mapping for the key.
      */
     private V getHelper(K key, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            return null;
+        } else if (key.compareTo(p.key) < 0){
+            return getHelper(key, p.left);
+        } else if (key.compareTo(p.key) > 0) {
+            return getHelper(key, p.right);
+        } else {
+            return p.value;
+        }
     }
 
     /** Returns the value to which the specified key is mapped, or null if this
@@ -52,14 +60,26 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        return getHelper(key, this.root);
     }
 
     /** Returns a BSTMap rooted in p with (KEY, VALUE) added as a key-value mapping.
       * Or if p is null, it returns a one node BSTMap containing (KEY, VALUE).
      */
     private Node putHelper(K key, V value, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            size += 1;
+            return new Node(key, value);
+        } else if (key.compareTo(p.key) < 0) {
+            p.left = putHelper(key, value, p.left);
+            return p;
+        } else if (key.compareTo(p.key) > 0) {
+            p.right = putHelper(key, value, p.right);
+            return p;
+        } else {
+            p.value = value;
+            return p;
+        }
     }
 
     /** Inserts the key KEY
@@ -67,13 +87,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        root = putHelper(key, value, root);
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
@@ -84,12 +104,73 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         throw new UnsupportedOperationException();
     }
 
+    /* 找到以p为root子树的最大节点 */
+    public Node findMax(Node p) {
+        if (p.right == null)    return p;
+        return findMax(p.right);
+    }
+
+    /* 找到以p为root子树的最小节点 */
+    public Node findMin(Node p) {
+        if (p.left == null)    return p;
+        return findMax(p.left);
+    }
+
+    /* 删除以p为root子树的最小节点 */
+    public Node deleteMin(Node p){
+        if (p == null) {
+            return null;
+        } else {
+            p.left = deleteMin(p.left);
+            return p;
+        }
+    }
+
+    /* 删除以p为root子树的最大节点 */
+    public Node deleteMax(Node p){
+        if (p == null) {
+            return null;
+        } else {
+            p.right = deleteMax(p.right);
+            return p;
+        }
+    }
+
+    /**
+     * removeHelper（思路与putHelper类似，都是返回改变后的子树）
+     */
+    public Node removeHelper(K key, Node p) {
+        if (p == null) {
+            return null;
+        } else if (key.compareTo(p.key) < 0) {
+            p.left = removeHelper(key, p.left);
+            return p;
+        } else if (key.compareTo(p.key) > 0) {
+            p.right = removeHelper(key, p.right);
+            return p;
+        } else {
+            // no children
+            if (p.left == null && p.right == null) return p;
+            // one children
+            if (p.left == null)     return p.right;
+            if (p.right == null)    return p.left;
+            // two children
+            Node maxNode = findMax(p.left);
+            maxNode.left = deleteMax(p.left);
+            maxNode.right = p.right;
+            return maxNode;
+        }
+    }
+
     /** Removes KEY from the tree if present
      *  returns VALUE removed,
      *  null on failed removal.
      */
     @Override
     public V remove(K key) {
+//        V value = get(key);
+//        root = removeHelper(key, root);
+//        return value;
         throw new UnsupportedOperationException();
     }
 
@@ -105,5 +186,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
     @Override
     public Iterator<K> iterator() {
         throw new UnsupportedOperationException();
+    }
+
+    public static void main(String[] args) {
+        BSTMap<String, Integer> bstmap = new BSTMap<>();
+        bstmap.put("hello", 5);
+        bstmap.put("cat", 10);
+        bstmap.put("fish", 22);
+        bstmap.put("zebra", 90);
     }
 }
