@@ -167,6 +167,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         if (value == null) {
             return null;
         } else {
+            size -= 1;
             root = removeHelper(key, root);
             keySet.remove(key);
             return value;
