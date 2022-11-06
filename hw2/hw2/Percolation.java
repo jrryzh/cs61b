@@ -3,9 +3,9 @@ package hw2;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
-    int[][] grids;
-    int numOpenSites;
-    WeightedQuickUnionUF gridsSet;
+    private int[][] grids;
+    private int numOpenSites;
+    private WeightedQuickUnionUF gridsSet;
 
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
@@ -19,7 +19,7 @@ public class Percolation {
         gridsSet = new WeightedQuickUnionUF(N*N);
     }
 
-    public void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gridsSet) {
+    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gridsSet) {
         if (checkBounds(row + i) && checkBounds(col + j) && isOpen(row + i, col + j))
             gridsSet.union(calc(row + i, col + j), calc(row, col));
     }
@@ -65,16 +65,16 @@ public class Percolation {
         return false;
     }
 
-    public int calc(int row, int col) {
+    private int calc(int row, int col) {
         return row * grids[0].length + col;
     }
 
-    public boolean checkBounds(int m) {
+    private boolean checkBounds(int m) {
         int n = grids[0].length;
         return m >= 0 && m < n;
     }
 
-    public void validate(int row, int col) {
+    private void validate(int row, int col) {
         int n = grids[0].length;
         if (!checkBounds(row)) {
             throw new IllegalArgumentException("index " + row + " is not between 0 and " + (n - 1));
