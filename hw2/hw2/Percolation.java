@@ -10,7 +10,9 @@ public class Percolation {
 
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
-        if (N <= 0) throw new IllegalArgumentException(N + "should be larger than 0");
+        if (N <= 0) {
+            throw new IllegalArgumentException(N + "should be larger than 0");
+        }
         n = N;
         grids = new int[N][N];
         for (int i = 0; i < N; i++) {
@@ -28,9 +30,10 @@ public class Percolation {
     }
 
     // 1次union操作
-    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gridsSet) {
-        if (checkBounds(row + i) && checkBounds(col + j) && isOpen(row + i, col + j))
-            gridsSet.union(calc(row + i, col + j), calc(row, col));
+    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gS) {
+        if (checkBounds(row + i) && checkBounds(col + j) && isOpen(row + i, col + j)) {
+            gS.union(calc(row + i, col + j), calc(row, col));
+        }
     }
 
     // open the site (row, col) if it is not open already
@@ -93,10 +96,12 @@ public class Percolation {
 
     private void validate(int row, int col) {
         if (!checkBounds(row)) {
-            throw new IndexOutOfBoundsException("index " + row + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index " +
+                    row + " is not between 0 and " + (n - 1));
         }
         if (!checkBounds(col)) {
-            throw new IndexOutOfBoundsException("index " + col + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index " +
+                    col + " is not between 0 and " + (n - 1));
         }
     }
 

@@ -2,8 +2,6 @@ package hw2;
 
 import edu.princeton.cs.introcs.StdRandom;
 
-import java.nio.file.NotLinkException;
-
 public class PercolationStats {
     private int n;
     private int t;
@@ -11,8 +9,12 @@ public class PercolationStats {
 
     // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
-        if (N <= 0) throw new IllegalArgumentException(N + "should be larger than 0");
-        if (T <= 0) throw new IllegalArgumentException(T + "should be larger than 0");
+        if (N <= 0) {
+            throw new IllegalArgumentException(N + "should be larger than 0");
+        }
+        if (T <= 0) {
+            throw new IllegalArgumentException(T + "should be larger than 0");
+        }
         n = N;
         t = T;
         openNumArray = new int[T];
