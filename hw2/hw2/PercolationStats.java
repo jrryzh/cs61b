@@ -3,7 +3,7 @@ package hw2;
 import edu.princeton.cs.introcs.StdRandom;
 
 public class PercolationStats {
-    int[] openNumArray;
+    private int[] openNumArray;
 
     // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
