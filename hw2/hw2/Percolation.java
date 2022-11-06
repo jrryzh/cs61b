@@ -3,6 +3,7 @@ package hw2;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
+    private int n;
     private int[][] grids;
     private int numOpenSites;
     private WeightedQuickUnionUF gridsSet;
@@ -10,6 +11,7 @@ public class Percolation {
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
         if (N <= 0) throw new IllegalArgumentException(N + "should be larger than 0");
+        n = N;
         grids = new int[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -60,14 +62,10 @@ public class Percolation {
     // 因此利用 virtual top site 进行简化 检查时只需要检查与virtual top site是否相连即可
     public boolean isFull(int row, int col) {
         validate(row, col);
-//        for (int c = 0; c < grids[0].length; c += 1) {
-//            if (isOpen(0, c) && gridsSet.connected(calc(row, col), calc(0, c))) return true;
-//        }
-        int n = grids.length;
-        if (isOpen(row, col) && gridsSet.connected(calc(row, col), n * n)) {
-            return true;
+        if (n == 1) {
+            return grids[0][0] == 1;
         } else {
-            return false;
+            return isOpen(row, col) && gridsSet.connected(calc(row, col), n * n);
         }
     }
 
@@ -78,28 +76,22 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-//        for (int c = 0; c < grids[0].length; c += 1) {
-//            if (isFull(grids.length - 1, c)) return true;
-//        }
-        int n = grids.length;
-        if (gridsSet.connected(n * n, n * n + 1)) {
-            return true;
+        if (n == 1) {
+            return grids[0][0] == 1;
         } else {
-            return false;
+            return gridsSet.connected(n * n, n * n + 1);
         }
     }
 
     private int calc(int row, int col) {
-        return row * grids[0].length + col;
+        return row * n + col;
     }
 
     private boolean checkBounds(int m) {
-        int n = grids[0].length;
         return m >= 0 && m < n;
     }
 
     private void validate(int row, int col) {
-        int n = grids[0].length;
         if (!checkBounds(row)) {
             throw new IndexOutOfBoundsException("index " + row + " is not between 0 and " + (n - 1));
         }

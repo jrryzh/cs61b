@@ -2,15 +2,21 @@ package hw2;
 
 import edu.princeton.cs.introcs.StdRandom;
 
+import java.nio.file.NotLinkException;
+
 public class PercolationStats {
+    private int n;
+    private int t;
     private int[] openNumArray;
 
     // perform T independent experiments on an N-by-N grid
     public PercolationStats(int N, int T, PercolationFactory pf) {
         if (N <= 0) throw new IllegalArgumentException(N + "should be larger than 0");
         if (T <= 0) throw new IllegalArgumentException(T + "should be larger than 0");
+        n = N;
+        t = T;
         openNumArray = new int[T];
-        for (int t = 0; t < T; t += 1) {
+        for (int i = 0; i < T; i += 1) {
             Percolation p = pf.make(N);
             while (!p.percolates()) {
                 int row = StdRandom.uniform(0, N);
@@ -19,14 +25,14 @@ public class PercolationStats {
                     p.open(row, col);
                 }
             }
-            openNumArray[t] = p.numberOfOpenSites();
+            openNumArray[i] = p.numberOfOpenSites();
         }
     }
     // sample mean of percolation threshold
     public double mean() {
         double sum = 0.0;
-        for (int i : openNumArray) {
-            sum += i;
+        for (double i : openNumArray) {
+            sum += i / (n * n);
         }
         return sum / openNumArray.length;
     }
@@ -34,8 +40,8 @@ public class PercolationStats {
     public double stddev() {
         double sum = 0.0;
         double mu = mean();
-        for (int i : openNumArray) {
-            sum += (i - mu) * (i - mu);
+        for (double i : openNumArray) {
+            sum += (i / (n * n) - mu) * (i / (n * n) - mu);
         }
         return Math.sqrt(sum / (openNumArray.length - 1));
     }
