@@ -37,7 +37,7 @@ public class PercolationStats {
         for (int i : openNumArray) {
             sum += (i - mu) * (i - mu);
         }
-        return sum / (openNumArray.length - 1);
+        return Math.sqrt(sum / (openNumArray.length - 1));
     }
     // low endpoint of 95% confidence interval
     public double confidenceLow() {

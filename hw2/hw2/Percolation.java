@@ -9,6 +9,7 @@ public class Percolation {
 
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
+        if (N <= 0) throw new IllegalArgumentException(N + "should be larger than 0");
         grids = new int[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
@@ -77,10 +78,10 @@ public class Percolation {
     private void validate(int row, int col) {
         int n = grids[0].length;
         if (!checkBounds(row)) {
-            throw new IllegalArgumentException("index " + row + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index " + row + " is not between 0 and " + (n - 1));
         }
         if (!checkBounds(col)) {
-            throw new IllegalArgumentException("index " + col + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index " + col + " is not between 0 and " + (n - 1));
         }
     }
 
