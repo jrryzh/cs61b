@@ -35,7 +35,8 @@ public class Percolation {
     }
 
     // 1次union操作
-    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gS, WeightedQuickUnionUF gSNoBottom) {
+    private void openHelper(int row, int col, int i, int j,
+                            WeightedQuickUnionUF gS, WeightedQuickUnionUF gSNoBottom) {
         if (checkBounds(row + i) && checkBounds(col + j) && isOpen(row + i, col + j)) {
             gS.union(calc(row + i, col + j), calc(row, col));
             gSNoBottom.union(calc(row + i, col + j), calc(row, col));
@@ -102,12 +103,12 @@ public class Percolation {
 
     private void validate(int row, int col) {
         if (!checkBounds(row)) {
-            throw new IndexOutOfBoundsException("index " +
-                    row + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index "
+                    + row + " is not between 0 and " + (n - 1));
         }
         if (!checkBounds(col)) {
-            throw new IndexOutOfBoundsException("index " +
-                    col + " is not between 0 and " + (n - 1));
+            throw new IndexOutOfBoundsException("index "
+                    + col + " is not between 0 and " + (n - 1));
         }
     }
 
