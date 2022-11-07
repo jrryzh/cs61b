@@ -4,9 +4,10 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     private int n;
-    private int[][] grids;
+    private boolean[][] grids;
     private int numOpenSites;
     private WeightedQuickUnionUF gridsSet;
+    private WeightedQuickUnionUF gridsSetNoBottom;
 
     // create N-by-N grid, with all sites initially blocked
     public Percolation(int N) {
@@ -14,10 +15,10 @@ public class Percolation {
             throw new IllegalArgumentException(N + "should be larger than 0");
         }
         n = N;
-        grids = new int[N][N];
+        grids = new boolean[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                grids[i][j] = 0;
+                grids[i][j] = false;
             }
         }
         numOpenSites = 0;
@@ -27,12 +28,17 @@ public class Percolation {
             gridsSet.union(c, N * N);
             gridsSet.union(N * (N - 1) + c, N * N + 1);
         }
+        gridsSetNoBottom = new WeightedQuickUnionUF(N * N + 1);
+        for (int c = 0; c < N; c += 1) {
+            gridsSetNoBottom.union(c, N * N);
+        }
     }
 
     // 1次union操作
-    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gS) {
+    private void openHelper(int row, int col, int i, int j, WeightedQuickUnionUF gS, WeightedQuickUnionUF gSNoBottom) {
         if (checkBounds(row + i) && checkBounds(col + j) && isOpen(row + i, col + j)) {
             gS.union(calc(row + i, col + j), calc(row, col));
+            gSNoBottom.union(calc(row + i, col + j), calc(row, col));
         }
     }
 
@@ -41,14 +47,14 @@ public class Percolation {
     public void open(int row, int col) {
         validate(row, col);
         // 检查如果没有open
-        if (grids[row][col] == 0) {
+        if (!grids[row][col]) {
             // 设置状态为open
-            grids[row][col] = 1;
+            grids[row][col] = true;
             // 与上下左右连通的site设置为joint set
-            openHelper(row, col, -1, 0, gridsSet);
-            openHelper(row, col, 1, 0, gridsSet);
-            openHelper(row, col, 0, -1, gridsSet);
-            openHelper(row, col, 0, 1, gridsSet);
+            openHelper(row, col, -1, 0, gridsSet, gridsSetNoBottom);
+            openHelper(row, col, 1, 0, gridsSet, gridsSetNoBottom);
+            openHelper(row, col, 0, -1, gridsSet, gridsSetNoBottom);
+            openHelper(row, col, 0, 1, gridsSet, gridsSetNoBottom);
             // 数量增加1
             numOpenSites += 1;
         }
@@ -57,7 +63,7 @@ public class Percolation {
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         validate(row, col);
-        return grids[row][col] == 1;
+        return grids[row][col];
     }
 
     // is the site (row, col) full?
@@ -66,9 +72,9 @@ public class Percolation {
     public boolean isFull(int row, int col) {
         validate(row, col);
         if (n == 1) {
-            return grids[0][0] == 1;
+            return grids[0][0];
         } else {
-            return isOpen(row, col) && gridsSet.connected(calc(row, col), n * n);
+            return isOpen(row, col) && gridsSetNoBottom.connected(calc(row, col), n * n);
         }
     }
 
@@ -80,7 +86,7 @@ public class Percolation {
     // does the system percolate?
     public boolean percolates() {
         if (n == 1) {
-            return grids[0][0] == 1;
+            return grids[0][0];
         } else {
             return gridsSet.connected(n * n, n * n + 1);
         }
