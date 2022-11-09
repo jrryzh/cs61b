@@ -81,6 +81,18 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         contents[index2] = node1;
     }
 
+    /* Helper function. 如果node priority的情况下 index1 < index2 Return true */
+    private boolean less(int index1, int index2) {
+        Node node1 = getNode(index1);
+        Node node2 = getNode(index2);
+        return node1.priority() < node2.priority();
+    }
+
+    private boolean greater(int index1, int index2) {
+        Node node1 = getNode(index1);
+        Node node2 = getNode(index2);
+        return node1.priority() > node2.priority();
+    }
 
     /**
      * Returns the index of the node with smaller priority. Precondition: not
@@ -110,10 +122,9 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
 
         /** TODO: Your code here. */
         // 停止条件： 已经到了root节点 或 父亲节点比你小
-        int pIndex = parentIndex(index);
-        if (!(index == 1 || getNode(pIndex).priority() < getNode(index).priority())) {
-            swap(pIndex, index);
-            swim(pIndex);
+        while (index > 1 && less(index, parentIndex(index))) {
+            swap(index, parentIndex(index));
+            index = parentIndex(index);
         }
     }
 
@@ -126,18 +137,15 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
 
         /** TODO: Your code here. */
         // 停止条件： 没有孩子节点(已经sink到底部) 或 孩子节点（一个或两个）都比你大
-        int lIndex = leftIndex(index);
-        int rIndex = rightIndex(index);
-        double currentPriority = getNode(index).priority();
-        if (lIndex > size) return;
-        if (lIndex <= size && rIndex > size && getNode(lIndex).priority() > currentPriority) return;
-        if (rIndex <= size && getNode(lIndex).priority() > currentPriority && getNode(rIndex).priority() > currentPriority)
-            return;
-
-        int mIndex = min(lIndex, rIndex);
-        swap(index, mIndex);
-        sink(mIndex);
-
+        while (leftIndex(index) <= size) {
+            int jndex = leftIndex(index);
+            if (jndex < size && greater(jndex, jndex + 1)) {
+                jndex += 1;
+            }
+            if (!greater(index, jndex)) break;
+            swap(index, jndex);
+            index = jndex;
+        }
     }
 
     /**
@@ -218,8 +226,12 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
                 index = i;
             }
         }
-        if (priority > oldPriority) { sink(index); }
-        if (priority < oldPriority) { swim(index); }
+        if (priority > oldPriority) {
+            sink(index);
+        }
+        if (priority < oldPriority) {
+            swim(index);
+        }
     }
 
     /**
@@ -454,4 +466,24 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         }
     }
 
+    @Test
+    public void testInsertAndRemove() {
+        ArrayHeap<String> pq = new ArrayHeap<>();
+        pq.insert("c", 3);
+        pq.insert("i", 9);
+        pq.insert("g", 7);
+        pq.insert("d", 4);
+        String removed1 = pq.removeMin();
+        assertEquals("c", removed1);
+        pq.insert("a", 1);
+        pq.insert("h", 8);
+        pq.insert("e", 5);
+        String removed2 = pq.removeMin();
+        assertEquals("a", removed2);
+        pq.insert("b", 2);
+        pq.insert("c", 3);
+        pq.insert("d", 4);
+        String removed3 = pq.removeMin();
+        assertEquals("b", removed3);
+    }
 }
