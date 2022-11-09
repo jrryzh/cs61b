@@ -131,7 +131,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         double currentPriority = getNode(index).priority();
         if (lIndex > size) return;
         if (lIndex <= size && rIndex > size && getNode(lIndex).priority() > currentPriority) return;
-        if (rIndex >= size && getNode(lIndex).priority() > currentPriority && getNode(rIndex).priority() > currentPriority)
+        if (rIndex <= size && getNode(lIndex).priority() > currentPriority && getNode(rIndex).priority() > currentPriority)
             return;
 
         int mIndex = min(lIndex, rIndex);
