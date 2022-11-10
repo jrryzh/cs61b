@@ -110,10 +110,16 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
 
         /** TODO: Your code here. */
         // 停止条件： 已经到了root节点 或 父亲节点比你小
+//        int pIndex = parentIndex(index);
+//        if (!(index == 1 || getNode(pIndex).priority() < getNode(index).priority())) {
+//            swap(pIndex, index);
+//            swim(pIndex);
+//        }
         int pIndex = parentIndex(index);
-        if (!(index == 1 || getNode(pIndex).priority() < getNode(index).priority())) {
+        while (inBounds(pIndex) && getNode(index).priority() < getNode(pIndex).priority()) {
             swap(pIndex, index);
-            swim(pIndex);
+            index = pIndex;
+            pIndex = parentIndex(index);
         }
     }
 
@@ -125,18 +131,26 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         validateSinkSwimArg(index);
 
         /** TODO: Your code here. */
+        // 运行条件： 没有沉底而且孩子节点中有比自己小的
         // 停止条件： 没有孩子节点(已经sink到底部) 或 孩子节点（一个或两个）都比你大
+//        int lIndex = leftIndex(index);
+//        int rIndex = rightIndex(index);
+//        double currentPriority = getNode(index).priority();
+//        if (lIndex > size) return;
+//        if (lIndex <= size && rIndex > size && getNode(lIndex).priority() > currentPriority) return;
+//        if (rIndex <= size && getNode(lIndex).priority() > currentPriority && getNode(rIndex).priority() > currentPriority)
+//            return;
+//
+//        int mIndex = min(lIndex, rIndex);
+//        swap(index, mIndex);
+//        sink(mIndex);
         int lIndex = leftIndex(index);
         int rIndex = rightIndex(index);
-        double currentPriority = getNode(index).priority();
-        if (lIndex > size) return;
-        if (lIndex <= size && rIndex > size && getNode(lIndex).priority() > currentPriority) return;
-        if (rIndex <= size && getNode(lIndex).priority() > currentPriority && getNode(rIndex).priority() > currentPriority)
-            return;
-
-        int mIndex = min(lIndex, rIndex);
-        swap(index, mIndex);
-        sink(mIndex);
+        while (inBounds(lIndex) && getNode(min(lIndex, rIndex)).priority() < getNode(index).priority()) {
+            int minIndex = min(lIndex, rIndex);
+            swap(index, minIndex);
+            sink(minIndex);
+        }
 
     }
 
