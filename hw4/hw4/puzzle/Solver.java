@@ -13,9 +13,9 @@ public class Solver {
 
     /**
      * Solver(initial): Constructor which solves the puzzle, computing
-     everything necessary for moves() and solution() to
-     not have to solve the problem again. Solves the
-     puzzle using the A* algorithm. Assumes a solution exists.
+     * everything necessary for moves() and solution() to
+     * not have to solve the problem again. Solves the
+     * puzzle using the A* algorithm. Assumes a solution exists.
      */
     public Solver(WorldState initial) {
 
@@ -29,7 +29,7 @@ public class Solver {
                 endSN = currentSN;
                 return;
             } else {
-                for (WorldState nextWS: currentSN.worldState.neighbors()) {
+                for (WorldState nextWS : currentSN.worldState.neighbors()) {
                     if (currentSN.equals(initialSN) || !nextWS.equals(currentSN.previousSN.worldState)) {
                         SearchNode newSN = new SearchNode(nextWS, currentSN.numberOfMoves + 1, currentSN);
                         fringe.insert(newSN);
@@ -42,7 +42,7 @@ public class Solver {
 
     /**
      * moves(): Returns the minimum number of moves to solve the puzzle starting
-     at the initial WorldState.
+     * at the initial WorldState.
      */
     public int moves() {
         return endSN.numberOfMoves;
@@ -50,7 +50,7 @@ public class Solver {
 
     /**
      * solution():      Returns a sequence of WorldStates from the initial WorldState
-     to the solution.
+     * to the solution.
      */
     public Iterable<WorldState> solution() {
         ArrayList<WorldState> sol = new ArrayList<>();
@@ -68,7 +68,7 @@ public class Solver {
         int numberOfMoves;
         SearchNode previousSN;
 
-        public SearchNode (WorldState worldState, int numberOfMoves, SearchNode previousSN) {
+        public SearchNode(WorldState worldState, int numberOfMoves, SearchNode previousSN) {
             this.worldState = worldState;
             this.numberOfMoves = numberOfMoves;
             this.previousSN = previousSN;
@@ -79,21 +79,21 @@ public class Solver {
         static HashMap<SearchNode, Integer> estimatedDTGSet = new HashMap<>();
 
         @Override
-        public int compare(SearchNode SN1, SearchNode SN2) {
+        public int compare(SearchNode sn1, SearchNode sn2) {
             int estimatedDTG1, estimatedDTG2;
-            if (estimatedDTGSet.containsKey(SN1)) {
-                estimatedDTG1 = estimatedDTGSet.get(SN1);
+            if (estimatedDTGSet.containsKey(sn1)) {
+                estimatedDTG1 = estimatedDTGSet.get(sn1);
             } else {
-                estimatedDTG1 = SN1.worldState.estimatedDistanceToGoal();
-                estimatedDTGSet.put(SN1, estimatedDTG1);
+                estimatedDTG1 = sn1.worldState.estimatedDistanceToGoal();
+                estimatedDTGSet.put(sn1, estimatedDTG1);
             }
-            if (estimatedDTGSet.containsKey(SN2)) {
-                estimatedDTG2 = estimatedDTGSet.get(SN2);
+            if (estimatedDTGSet.containsKey(sn2)) {
+                estimatedDTG2 = estimatedDTGSet.get(sn2);
             } else {
-                estimatedDTG2 = SN2.worldState.estimatedDistanceToGoal();
-                estimatedDTGSet.put(SN2, estimatedDTG2);
+                estimatedDTG2 = sn2.worldState.estimatedDistanceToGoal();
+                estimatedDTGSet.put(sn2, estimatedDTG2);
             }
-            return (SN1.numberOfMoves + estimatedDTG1) - (SN2.numberOfMoves + estimatedDTG2);
+            return (sn1.numberOfMoves + estimatedDTG1) - (sn2.numberOfMoves + estimatedDTG2);
         }
     }
 }

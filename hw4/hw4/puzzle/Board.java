@@ -116,8 +116,11 @@ public class Board implements WorldState {
         return Arrays.deepEquals(tiles, b.tiles);
     }
 
-    /** Returns the string representation of the board.
-     * Uncomment this method. */
+    /**
+     * Returns the string representation of the board.
+     * Uncomment this method.
+     */
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         int N = size();
@@ -130,5 +133,17 @@ public class Board implements WorldState {
         }
         s.append("\n");
         return s.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (int i = 0; i < size; i += 1) {
+            for (int j = 0; j < size; j += 1) {
+                result += tileAt(i, j) * (i * size + j);
+            }
+        }
+        result = result * 10 + size;
+        return result;
     }
 }
