@@ -68,6 +68,8 @@ public class MazeAStarPath extends MazeExplorer {
                 if (!marked[w] && distTo[v] + 1 < distTo[w]) {
                     edgeTo[w] = v;
                     distTo[w] = distTo[v] + 1;
+                    // 临时添加即可 因为发现没有被更改distTo的节点（即dist为无穷大）也不会被remove出来
+                    // 反而开始就全部添加到fringe会导致后期无法更新priority queue
                     fringe.add(w);
                     announce();
                 }
