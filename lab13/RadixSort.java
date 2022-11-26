@@ -39,18 +39,13 @@ public class RadixSort {
         String[] result = new String[asciis.length];
         int[] counts = new int[256 + 1];
         int[] starts = new int[256 + 1];
-        // convert char to ints
-        int[] charValues = new int[asciis.length];
+        // do the counts
         for (int i = 0; i < asciis.length; i++) {
             if (index > asciis[i].length() - 1) {
-                charValues[i] = -1;
+                counts[0] += 1;
             } else {
-                charValues[i] = asciis[i].charAt(index);
+                counts[asciis[i].charAt(index) + 1] += 1;
             }
-        }
-        // do the counts
-        for (int v : charValues) {
-            counts[v - (-1)] += 1;
         }
         // do the starts
         int k = 0;
@@ -66,8 +61,8 @@ public class RadixSort {
             } else {
                 v = s.charAt(index);
             }
-            result[starts[v - (-1)]] = s;
-            starts[v - (-1)] += 1;
+            result[starts[v + 1]] = s;
+            starts[v + 1] += 1;
         }
         // copying
         for (int i = 0; i < asciis.length; i++) {
