@@ -17,7 +17,14 @@ public class RadixSort {
      */
     public static String[] sort(String[] asciis) {
         // TODO: Implement LSD Sort
-        return null;
+        int m = 0;
+        for (String s : asciis) {
+            m = Math.max(m, s.length());
+        }
+        for (int i = m-1; i >= 0 ; i--) {
+            sortHelperLSD(asciis, i);
+        }
+        return asciis;
     }
 
     /**
@@ -28,7 +35,44 @@ public class RadixSort {
      */
     private static void sortHelperLSD(String[] asciis, int index) {
         // Optional LSD helper method for required LSD radix sort
-        return;
+        // inital lists
+        String[] result = new String[asciis.length];
+        int[] counts = new int[256 + 1];
+        int[] starts = new int[256 + 1];
+        // convert char to ints
+        int[] charValues = new int[asciis.length];
+        for (int i = 0; i < asciis.length; i++) {
+            if (index > asciis[i].length() - 1) {
+                charValues[i] = -1;
+            } else {
+                charValues[i] = asciis[i].charAt(index);
+            }
+        }
+        // do the counts
+        for (int v : charValues) {
+            counts[v - (-1)] += 1;
+        }
+        // do the starts
+        int k = 0;
+        for (int i = 0; i < counts.length; i++) {
+            starts[i] = k;
+            k += counts[i];
+        }
+        // sorting
+        for (String s : asciis) {
+            int v;
+            if (index > s.length() - 1) {
+                v = -1;
+            } else {
+                v = s.charAt(index);
+            }
+            result[starts[v - (-1)]] = s;
+            starts[v - (-1)] += 1;
+        }
+        // copying
+        for (int i = 0; i < asciis.length; i++) {
+            asciis[i] = result[i];
+        }
     }
 
     /**
