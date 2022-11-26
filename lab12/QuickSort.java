@@ -48,7 +48,7 @@ public class QuickSort {
             Queue<Item> unsorted, Item pivot,
             Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
         // Your code here!
-        while (!unsorted.isEmpty()) {
+        for (int i = 0; i < unsorted.size(); i++) {
             Item item = unsorted.dequeue();
             if (item.compareTo(pivot) > 0) {
                 greater.enqueue(item);
@@ -57,6 +57,7 @@ public class QuickSort {
             } else {
                 less.enqueue(item);
             }
+            unsorted.enqueue(item);
         }
     }
 
@@ -85,6 +86,14 @@ public class QuickSort {
     }
 
     public static void main(String[] args) {
+        Queue<String> students = new Queue<>();
+        students.enqueue("Alice");
+        students.enqueue("Vanessa");
+        students.enqueue("Ethan");
+        Queue<String> sortedStudents = quickSort(students);
+        System.out.println(students);
+        System.out.println(sortedStudents);
+
         Queue<Integer> numbers = new Queue<>();
         numbers.enqueue(4);
         numbers.enqueue(5);
@@ -93,13 +102,7 @@ public class QuickSort {
         numbers.enqueue(3);
         numbers.enqueue(8);
         Queue<Integer> sortedNumbers = quickSort(numbers);
+        System.out.println(numbers);
         System.out.println(sortedNumbers);
-
-        Queue<String> students = new Queue<String>();
-        students.enqueue("Alice");
-        students.enqueue("Vanessa");
-        students.enqueue("Ethan");
-        Queue<String> sortedStudents = quickSort(students);
-        System.out.println(sortedStudents);
     }
 }

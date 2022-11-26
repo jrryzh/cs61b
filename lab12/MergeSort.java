@@ -73,29 +73,23 @@ public class MergeSort {
     public static <Item extends Comparable> Queue<Item> mergeSort(
             Queue<Item> items) {
         // Your code here!
-        Queue<Queue<Item>> savingQueues = new Queue<>();
-        Queue<Queue<Item>> checkingQueues = makeSingleItemQueues(items);
-        while (checkingQueues.size() > 1) {
-            while (checkingQueues.size() > 2) {
-                Queue<Item> q1 = checkingQueues.dequeue();
-                Queue<Item> q2 = checkingQueues.dequeue();
-                savingQueues.enqueue(mergeSortedQueues(q1, q2));
-            }
-            if (checkingQueues.size() == 2) {
-                Queue<Item> q1 = checkingQueues.dequeue();
-                Queue<Item> q2 = checkingQueues.dequeue();
-                savingQueues.enqueue(mergeSortedQueues(q1, q2));
-            } else {
-                savingQueues.enqueue(checkingQueues.dequeue());
-            }
-
-            checkingQueues = savingQueues;
+        // 这是我的第二个solution 把新的结果不断塞回queue 代码简洁且高效
+        if (items.size() <= 1) {
+            return items;
         }
-        return checkingQueues.dequeue();
+
+        Queue<Queue<Item>> itemQueueQueues = makeSingleItemQueues(items);
+        while (itemQueueQueues.size() > 1) {
+            Queue<Item> q1 = itemQueueQueues.dequeue();
+            Queue<Item> q2 = itemQueueQueues.dequeue();
+            itemQueueQueues.enqueue(mergeSortedQueues(q1, q2));
+        }
+
+        return itemQueueQueues.dequeue();
     }
 
     public static void main(String[] args) {
-        Queue<String> students = new Queue<String>();
+        Queue<String> students = new Queue<>();
         students.enqueue("Alice");
         students.enqueue("Vanessa");
         students.enqueue("Ethan");
