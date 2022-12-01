@@ -4,26 +4,27 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 /**
- *  Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
- *  pathfinding, under some constraints.
- *  See OSM documentation on
- *  <a href="http://wiki.openstreetmap.org/wiki/Key:highway">the highway tag</a>,
- *  <a href="http://wiki.openstreetmap.org/wiki/Way">the way XML element</a>,
- *  <a href="http://wiki.openstreetmap.org/wiki/Node">the node XML element</a>,
- *  and the java
- *  <a href="https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html">SAX parser tutorial</a>.
+ * Parses OSM XML files using an XML SAX parser. Used to construct the graph of roads for
+ * pathfinding, under some constraints.
+ * See OSM documentation on
+ * <a href="http://wiki.openstreetmap.org/wiki/Key:highway">the highway tag</a>,
+ * <a href="http://wiki.openstreetmap.org/wiki/Way">the way XML element</a>,
+ * <a href="http://wiki.openstreetmap.org/wiki/Node">the node XML element</a>,
+ * and the java
+ * <a href="https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html">SAX parser tutorial</a>.
+ * <p>
+ * You may find the CSCourseGraphDB and CSCourseGraphDBHandler examples useful.
+ * <p>
+ * The idea here is that some external library is going to walk through the XML
+ * file, and your override method tells Java what to do every time it gets to the next
+ * element in the file. This is a very common but strange-when-you-first-see it pattern.
+ * It is similar to the Visitor pattern we discussed for graphs.
  *
- *  You may find the CSCourseGraphDB and CSCourseGraphDBHandler examples useful.
- *
- *  The idea here is that some external library is going to walk through the XML
- *  file, and your override method tells Java what to do every time it gets to the next
- *  element in the file. This is a very common but strange-when-you-first-see it pattern.
- *  It is similar to the Visitor pattern we discussed for graphs.
- *
- *  @author Alan Yao, Maurice Lee
+ * @author Alan Yao, Maurice Lee
  */
 public class GraphBuildingHandler extends DefaultHandler {
     /**
@@ -39,8 +40,12 @@ public class GraphBuildingHandler extends DefaultHandler {
     private String activeState = "";
     private final GraphDB g;
 
+    private GraphDB.Node node;
+    private GraphDB.Way way;
+
     /**
      * Create a new GraphBuildingHandler.
+     *
      * @param g The graph to populate with the XML data.
      */
     public GraphBuildingHandler(GraphDB g) {
@@ -50,12 +55,13 @@ public class GraphBuildingHandler extends DefaultHandler {
     /**
      * Called at the beginning of an element. Typically, you will want to handle each element in
      * here, and you may want to track the parent element.
-     * @param uri The Namespace URI, or the empty string if the element has no Namespace URI or
-     *            if Namespace processing is not being performed.
-     * @param localName The local name (without prefix), or the empty string if Namespace
-     *                  processing is not being performed.
-     * @param qName The qualified name (with prefix), or the empty string if qualified names are
-     *              not available. This tells us which element we're looking at.
+     *
+     * @param uri        The Namespace URI, or the empty string if the element has no Namespace URI or
+     *                   if Namespace processing is not being performed.
+     * @param localName  The local name (without prefix), or the empty string if Namespace
+     *                   processing is not being performed.
+     * @param qName      The qualified name (with prefix), or the empty string if qualified names are
+     *                   not available. This tells us which element we're looking at.
      * @param attributes The attributes attached to the element. If there are no attributes, it
      *                   shall be an empty Attributes object.
      * @throws SAXException Any SAX exception, possibly wrapping another exception.
@@ -74,21 +80,33 @@ public class GraphBuildingHandler extends DefaultHandler {
 
             /* TODO Use the above information to save a "node" to somewhere. */
             /* Hint: A graph-like structure would be nice. */
+            long id = Long.parseLong(attributes.getValue("id"));
+            double lon = Double.parseDouble(attributes.getValue("lon"));
+            double lat = Double.parseDouble(attributes.getValue("lat"));
+
+            node = new GraphDB.Node(id, lat, lon);
+            g.nodeIdMap.put(id, node);
+            g.nodeAdjMap.put(id, new LinkedList<>());
 
         } else if (qName.equals("way")) {
             /* We encountered a new <way...> tag. */
             activeState = "way";
 //            System.out.println("Beginning a way...");
+            long wayId = Long.parseLong(attributes.getValue("id"));
+            way = new GraphDB.Way(wayId);
         } else if (activeState.equals("way") && qName.equals("nd")) {
             /* While looking at a way, we found a <nd...> tag. */
             //System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
-
+            long nodeId = Long.parseLong(attributes.getValue("ref"));
             /* TODO Use the above id to make "possible" connections between the nodes in this way */
             /* Hint1: It would be useful to remember what was the last node in this way. */
             /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
             cumbersome since you might have to remove the connections if you later see a tag that
             makes this way invalid. Instead, think of keeping a list of possible connections and
             remember whether this way is valid or not. */
+            way.previousNodeId = way.currentNodeId;
+            way.currentNodeId = nodeId;
+            way.addConnection();
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
             /* While looking at a way, we found a <tag...> tag. */
@@ -97,12 +115,15 @@ public class GraphBuildingHandler extends DefaultHandler {
             if (k.equals("maxspeed")) {
                 //System.out.println("Max Speed: " + v);
                 /* TODO set the max speed of the "current way" here. */
+                way.setMaxspeed(v);
             } else if (k.equals("highway")) {
                 //System.out.println("Highway type: " + v);
                 /* TODO Figure out whether this way and its connections are valid. */
                 /* Hint: Setting a "flag" is good enough! */
+                way.setHighway(v);
             } else if (k.equals("name")) {
                 //System.out.println("Way Name: " + v);
+                way.setName(v);
             }
 //            System.out.println("Tag with k=" + k + ", v=" + v + ".");
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
@@ -113,19 +134,21 @@ public class GraphBuildingHandler extends DefaultHandler {
             node this tag belongs to. Remember XML is parsed top-to-bottom, so probably it's the
             last node that you looked at (check the first if-case). */
 //            System.out.println("Node's name: " + attributes.getValue("v"));
+            node.addName(attributes.getValue("v"));
         }
     }
 
     /**
      * Receive notification of the end of an element. You may want to take specific terminating
      * actions here, like finalizing vertices or edges found.
-     * @param uri The Namespace URI, or the empty string if the element has no Namespace URI or
-     *            if Namespace processing is not being performed.
+     *
+     * @param uri       The Namespace URI, or the empty string if the element has no Namespace URI or
+     *                  if Namespace processing is not being performed.
      * @param localName The local name (without prefix), or the empty string if Namespace
      *                  processing is not being performed.
-     * @param qName The qualified name (with prefix), or the empty string if qualified names are
-     *              not available.
-     * @throws SAXException  Any SAX exception, possibly wrapping another exception.
+     * @param qName     The qualified name (with prefix), or the empty string if qualified names are
+     *                  not available.
+     * @throws SAXException Any SAX exception, possibly wrapping another exception.
      */
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -134,6 +157,30 @@ public class GraphBuildingHandler extends DefaultHandler {
             /* Hint1: If you have stored the possible connections for this way, here's your
             chance to actually connect the nodes together if the way is valid. */
 //            System.out.println("Finishing a way...");
+            if (ALLOWED_HIGHWAY_TYPES.contains(way.highway)) {
+                for (GraphDB.Edge e : way.edgeList) {
+                    long n1 = e.srcNodeId;
+                    long n2 = e.dstNodeId;
+                    // 先检查adjMap是否有n1 n2
+                    if (!g.nodeAdjMap.containsKey(n1)) {
+                        g.addNodeInAdjMap(n1);
+                        System.out.println(n1);
+                    }
+                    if (!g.nodeAdjMap.containsKey(n2)) {
+                        g.addNodeInAdjMap(n2);
+                        System.out.println(n2);
+                    }
+                    // 添加n1 n2至各自边
+                    g.nodeAdjMap.get(n1).add(n2);
+                    g.nodeAdjMap.get(n2).add(n1);
+
+                    // 设置n1 n2 的wayId为当前wayId
+                    g.nodeIdMap.get(n1).addWayId(way.id);
+                    g.nodeIdMap.get(n2).addWayId(way.id);
+                }
+                // 将way存储到wayIdMap
+                g.wayIdMap.put(way.id, way);
+            }
         }
     }
 

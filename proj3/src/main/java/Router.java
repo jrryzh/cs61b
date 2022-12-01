@@ -1,5 +1,6 @@
-import java.util.List;
-import java.util.Objects;
+import edu.princeton.cs.algs4.MinPQ;
+
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +26,75 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+
+        List<Long> shortestPath = new LinkedList<>();
+        long stNodeId = g.closest(stlon, stlat);
+        long destNodeId = g.closest(destlon, destlat);
+        Map<Long, Double> checkedMap = new HashMap<>();
+
+        // Initial the fringe
+        PathNode stNode = new PathNode(stNodeId, 0, g.distance(stNodeId, destNodeId), null);
+        PathNode destNode = null;
+        MinPQ<PathNode> fringe = new MinPQ<>(new NodeComparator());
+        fringe.insert(stNode);
+        checkedMap.put(stNodeId, 0.0);
+
+        // start the searching
+        while (!fringe.isEmpty()) {
+            PathNode currentNode = fringe.delMin();
+            if (currentNode.nodeId == destNodeId) {
+                destNode = currentNode;
+                break;
+            }
+            for (long nodeId : g.adjacent(currentNode.nodeId)) {
+                if (!checkedMap.containsKey(nodeId)) {
+                    PathNode nextNode = new PathNode(nodeId, currentNode.distTo + g.distance(currentNode.nodeId, nodeId), g.distance(nodeId, destNodeId), currentNode);
+                    fringe.insert(nextNode);
+                    checkedMap.put(nodeId, currentNode.distTo + g.distance(currentNode.nodeId, nodeId));
+                } else if (checkedMap.get(nodeId) > currentNode.distTo + g.distance(currentNode.nodeId, nodeId)) {
+                    PathNode nextNode = new PathNode(nodeId, currentNode.distTo + g.distance(currentNode.nodeId, nodeId), g.distance(nodeId, destNodeId), currentNode);
+                    fringe.insert(nextNode);
+                    checkedMap.replace(nodeId, currentNode.distTo + g.distance(currentNode.nodeId, nodeId));
+                }
+            }
+        }
+
+        // organize the results
+        PathNode currentNode = destNode;
+        while (currentNode.nodeId != stNodeId) {
+            shortestPath.add(0, currentNode.nodeId);
+            currentNode = currentNode.pathTo;
+        }
+        shortestPath.add(0, currentNode.nodeId);
+
+        return shortestPath;
+    }
+
+    private static class PathNode {
+        long nodeId;
+        double distTo, distH;
+        PathNode pathTo;
+
+        public PathNode(long nodeId, double distTo, double distH, PathNode pathTo) {
+            this.nodeId = nodeId;
+            this.distTo = distTo;
+            this.distH = distH;
+            this.pathTo = pathTo;
+        }
+    }
+
+    private static class NodeComparator implements Comparator<PathNode> {
+
+        @Override
+        public int compare(PathNode n1, PathNode n2) {
+            if ((n1.distTo + n1.distH) - (n2.distTo + n2.distH) > 0) {
+                return 1;
+            } else if ((n1.distTo + n1.distH) - (n2.distTo + n2.distH) == 0) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
     }
 
     /**
@@ -37,7 +106,75 @@ public class Router {
      * route.
      */
     public static List<NavigationDirection> routeDirections(GraphDB g, List<Long> route) {
-        return null; // FIXME
+        List<NavigationDirection> resList = new ArrayList<>();
+        Long prevNodeId, curNodeId;
+
+        NavigationDirection currentND = new NavigationDirection();
+        currentND.direction = NavigationDirection.START;
+        // 此时way为 wayname 或 UNKNOWN
+        currentND.way = wayNameHelper(g, route.get(0), route.get(1));
+        currentND.distance += g.distance(route.get(0), route.get(1));
+
+        for (int i = 1, j = 2; j < route.size(); i += 1, j += 1) {
+            prevNodeId = route.get(i);
+            curNodeId = route.get(j);
+
+            if (wayNameHelper(g, prevNodeId, curNodeId).equals(currentND.way)) {
+                currentND.distance += g.distance(prevNodeId, curNodeId);
+            } else {
+                resList.add(currentND);
+                currentND = new NavigationDirection();
+                double prevBearing = g.bearing(route.get(i - 1), prevNodeId);
+                double curBearing = g.bearing(prevNodeId, curNodeId);
+                currentND.direction = directionHelper(g, prevBearing, curBearing);
+                currentND.distance += g.distance(prevNodeId, curNodeId);
+                currentND.way = wayNameHelper(g, prevNodeId, curNodeId);
+            }
+        }
+        resList.add(currentND);
+        return resList;
+    }
+
+    private static Long wayIdHelper(GraphDB g, long node1, long node2) {
+        for (long id1 : g.nodeIdMap.get(node1).wayIdSet) {
+            for (long id2 : g.nodeIdMap.get(node2).wayIdSet) {
+                if (id1 == id2) {
+                    return id1;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String wayNameHelper(GraphDB g, long node1, long node2) {
+        Long wayId = wayIdHelper(g, node1, node2);
+        String wayName = g.wayIdMap.get(wayId).name;
+        return Objects.requireNonNullElse(wayName, "");
+    }
+
+    private static int directionHelper(GraphDB g, double prevBearing, double curBearing) {
+        double relativeBearing = curBearing - prevBearing;
+        if (relativeBearing > 180) {
+            relativeBearing -= 360;
+        } else if (relativeBearing < -180) {
+            relativeBearing += 360;
+        }
+
+        if (relativeBearing < -100) {
+            return NavigationDirection.SHARP_LEFT;
+        } else if (relativeBearing < -30) {
+            return NavigationDirection.LEFT;
+        } else if (relativeBearing < -15) {
+            return NavigationDirection.SLIGHT_LEFT;
+        } else if (relativeBearing < 15) {
+            return NavigationDirection.STRAIGHT;
+        } else if (relativeBearing < 30) {
+            return NavigationDirection.SLIGHT_RIGHT;
+        } else if (relativeBearing < 100) {
+            return NavigationDirection.RIGHT;
+        } else {
+            return NavigationDirection.SHARP_RIGHT;
+        }
     }
 
 
