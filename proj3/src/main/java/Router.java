@@ -32,14 +32,14 @@ public class Router {
         long destNodeId = g.closest(destlon, destlat);
         Map<Long, Double> checkedMap = new HashMap<>();
 
-        // Initial the fringe
+        // 初始化fringe
         PathNode stNode = new PathNode(stNodeId, 0, g.distance(stNodeId, destNodeId), null);
         PathNode destNode = null;
         MinPQ<PathNode> fringe = new MinPQ<>(new NodeComparator());
         fringe.insert(stNode);
         checkedMap.put(stNodeId, 0.0);
 
-        // start the searching
+        // 开始搜索
         while (!fringe.isEmpty()) {
             PathNode currentNode = fringe.delMin();
             if (currentNode.nodeId == destNodeId) {
@@ -59,7 +59,12 @@ public class Router {
             }
         }
 
-        // organize the results
+        // 处理unreachable的部分
+        if (destNode == null) {
+            return shortestPath;
+        }
+
+        // 从nodes中整理出list结果
         PathNode currentNode = destNode;
         while (currentNode.nodeId != stNodeId) {
             shortestPath.add(0, currentNode.nodeId);
