@@ -47,9 +47,13 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
+        Picture oldPic = picture;
         transposePicture();
         int[] res = findVerticalSeam();
-        detransposePicture();
+        picture = oldPic;
+        width = picture.width();
+        height = picture.height();
+        transposed = false;
         return res;
     }
 
@@ -92,8 +96,6 @@ public class SeamCarver {
             prevRowEnergy[x] = energy(x, 0);
             resList[0][x] = x; // 先row再col
         }
-
-
 
         // 对接下来的每一个row都循环
         // resList的每个位置都存上一行的正确数字
