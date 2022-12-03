@@ -1,7 +1,5 @@
 import edu.princeton.cs.algs4.Picture;
 import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SeamCarver {
     private Picture picture;
@@ -32,6 +30,13 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
+        if (x < 0 || x > width - 1) {
+            throw new java.lang.IndexOutOfBoundsException("x is outside its prescribed range.");
+        }
+        if (y < 0 || y > height - 1) {
+            throw new java.lang.IndexOutOfBoundsException("y is outside its prescribed range.");
+        }
+
         Color topColor = fetchTop(x, y);
         Color bottomColor = fetchBotom(x, y);
         Color leftColor = fetchLeft(x, y);
@@ -122,11 +127,19 @@ public class SeamCarver {
 
     // remove horizontal seam from picture
     public void removeHorizontalSeam(int[] seam) {
+        if (seam.length != width || !validateSeam(seam)) {
+            throw new java.lang.IllegalArgumentException("HorizontalSeam is invalid!");
+        }
+
         picture = SeamRemover.removeHorizontalSeam(picture, seam);
     }
 
     // remove vertical seam from picture
     public void removeVerticalSeam(int[] seam) {
+        if (seam.length != height || !validateSeam(seam)) {
+            throw new java.lang.IllegalArgumentException("VerticalSeam is invalid!");
+        }
+
         picture = SeamRemover.removeVerticalSeam(picture, seam);
     }
 
@@ -229,5 +242,14 @@ public class SeamCarver {
             res[i] = arr[arr.length - i - 1];
         }
         return res;
+    }
+
+    private boolean validateSeam(int[] seam) {
+        for (int i = 0, j = 1; j < seam.length; i ++, j ++) {
+            if (Math.abs(seam[i] - seam[j]) > 1) {
+                return false;
+            }
+        }
+        return true;
     }
 }
