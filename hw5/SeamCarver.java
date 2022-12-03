@@ -47,14 +47,18 @@ public class SeamCarver {
 
     // sequence of indices for horizontal seam
     public int[] findHorizontalSeam() {
-        Picture oldPic = picture;
+        Picture copyPicture = new Picture(picture);
         transposePicture();
         int[] res = findVerticalSeam();
-        picture = oldPic;
+        detransposePicture(copyPicture);
+        return res;
+    }
+
+    private void detransposePicture(Picture copyPicture) {
+        picture = copyPicture;
         width = picture.width();
         height = picture.height();
         transposed = false;
-        return res;
     }
 
     private void detransposePicture() {
@@ -96,6 +100,8 @@ public class SeamCarver {
             prevRowEnergy[x] = energy(x, 0);
             resList[0][x] = x; // 先row再col
         }
+
+
 
         // 对接下来的每一个row都循环
         // resList的每个位置都存上一行的正确数字
@@ -148,6 +154,7 @@ public class SeamCarver {
         width = picture.width();
         height = picture.height();
     }
+
 
     private Color fetchLeft(int x, int y) {
         // 超出左边
@@ -217,6 +224,14 @@ public class SeamCarver {
         }
 
         return new double[]{prevX + res - 1, currentEnergy};
+    }
+
+    private double sumOfArr(double[] arr) {
+        double sum = 0;
+        for (double i: arr) {
+            sum += i;
+        }
+        return sum;
     }
 
     private int argMinOfArr(double[] arr) {
