@@ -132,6 +132,8 @@ public class SeamCarver {
         }
 
         picture = SeamRemover.removeHorizontalSeam(picture, seam);
+        width = picture.width();
+        height = picture.height();
     }
 
     // remove vertical seam from picture
@@ -141,6 +143,8 @@ public class SeamCarver {
         }
 
         picture = SeamRemover.removeVerticalSeam(picture, seam);
+        width = picture.width();
+        height = picture.height();
     }
 
 
