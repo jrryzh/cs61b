@@ -36,11 +36,34 @@ public class TestPlip {
 
     @Test
     public void testReplicate() {
+        Plip p = new Plip(4);
+        Plip replicatedP = p.replicate();
+        assertEquals(p.energy(), 2, 0.01);
+        assertEquals(replicatedP.energy(), 2, 0.01);
+        assertNotSame(p, replicatedP);
 
+        p.move();
+        assertEquals(1.85, p.energy(), 0.01);
+        p.move();
+        assertEquals(1.70, p.energy(), 0.01);
+        p.stay();
+        assertEquals(1.90, p.energy(), 0.01);
+        p.stay();
+        assertEquals(2.00, p.energy(), 0.01);
+
+        replicatedP.move();
+        assertEquals(1.85, replicatedP.energy(), 0.01);
+        replicatedP.move();
+        assertEquals(1.70, replicatedP.energy(), 0.01);
+        replicatedP.stay();
+        assertEquals(1.90, replicatedP.energy(), 0.01);
+        replicatedP.stay();
+        assertEquals(2.00, replicatedP.energy(), 0.01);
     }
 
-    //@Test
+    @Test
     public void testChoose() {
+        // Stay test
         Plip p = new Plip(1.2);
         HashMap<Direction, Occupant> surrounded = new HashMap<Direction, Occupant>();
         surrounded.put(Direction.TOP, new Impassible());
@@ -56,6 +79,21 @@ public class TestPlip {
         Action expected = new Action(Action.ActionType.STAY);
 
         assertEquals(expected, actual);
+
+        // Replicate test
+        Plip p1 = new Plip(1.2);
+        HashMap<Direction, Occupant> surrounded1 = new HashMap<Direction, Occupant>();
+        surrounded1.put(Direction.TOP, new Empty());
+        surrounded1.put(Direction.BOTTOM, new Impassible());
+        surrounded1.put(Direction.LEFT, new Impassible());
+        surrounded1.put(Direction.RIGHT, new Impassible());
+
+        Action actual1 = p1.chooseAction(surrounded1);
+        Action expected1 = new Action(Action.ActionType.REPLICATE, Direction.TOP);
+
+        assertEquals(expected1, actual1);
+
+
     }
 
     public static void main(String[] args) {

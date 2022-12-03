@@ -20,6 +20,9 @@ public class Plip extends Creature {
     /** blue color. */
     private int b;
 
+    private static final double moveEnergyLost = 0.15;
+    private static final double stayEnergyGain = 0.2;
+
     /** creates plip with energy equal to E. */
     public Plip(double e) {
         super("plip");
@@ -42,7 +45,9 @@ public class Plip extends Creature {
      *  that you get this exactly correct.
      */
     public Color color() {
-        g = 63;
+        r = 99;
+        b = 76;
+        g = (int) (63 + energy / 2 * (255 - 63));
         return color(r, g, b);
     }
 
@@ -55,11 +60,14 @@ public class Plip extends Creature {
      *  private static final variable. This is not required for this lab.
      */
     public void move() {
+        energy -= moveEnergyLost;
     }
 
 
     /** Plips gain 0.2 energy when staying due to photosynthesis. */
     public void stay() {
+        energy += stayEnergyGain;
+        energeyCheck();
     }
 
     /** Plips and their offspring each get 50% of the energy, with none
@@ -67,7 +75,8 @@ public class Plip extends Creature {
      *  Plip.
      */
     public Plip replicate() {
-        return this;
+        energy = energy / 2;
+        return new Plip(energy);
     }
 
     /** Plips take exactly the following actions based on NEIGHBORS:
@@ -81,7 +90,26 @@ public class Plip extends Creature {
      *  for an example to follow.
      */
     public Action chooseAction(Map<Direction, Occupant> neighbors) {
+        List<Direction> empties = getNeighborsOfType(neighbors, "empty");
+        List<Direction> clorus = getNeighborsOfType(neighbors, "clorus");
+
+        if (empties.size() == 0) {
+            return new Action(Action.ActionType.STAY);
+        } else if (energy >= 1) {
+            Direction replicateDir = HugLifeUtils.randomEntry(empties);
+            return new Action(Action.ActionType.REPLICATE, replicateDir);
+        } else if (clorus.size() > 0) {
+            if (HugLifeUtils.random() < 0.5) {
+                Direction moveDir = HugLifeUtils.randomEntry(empties);
+                return new Action(Action.ActionType.MOVE, moveDir);
+            }
+        }
         return new Action(Action.ActionType.STAY);
+    }
+
+    /** Plips' Enegy should never get over 2, so check whenever theres an increase */
+    private void energeyCheck() {
+        energy = Math.min(2, energy);
     }
 
 }
