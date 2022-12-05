@@ -7,6 +7,7 @@ public class Boggle {
     // File path of dictionary file
     static String dictPath = "words.txt";
     static char[][] board;
+    static PriorityQueue<String> resPQ;
     static int width, height;
 
     /**
@@ -72,10 +73,10 @@ public class Boggle {
         // 这种思路是：从TrieSet出发,TrieSet的不同Node与当前board上某一位置对应
         // 初始化visted[][]和resPriorityQueue
         boolean[][] visited = new boolean[height][width];
-        PriorityQueue<String> resPQ = new PriorityQueue<>(new WordComparator());
+        resPQ = new PriorityQueue<>(new WordComparator());
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                searchWord(wordsTS.getRoot(), x, y, visited, resPQ, "", true);
+                searchWord(wordsTS.getRoot(), x, y, visited, "", true);
             }
         }
         // 整理结果
@@ -91,10 +92,10 @@ public class Boggle {
         return res;
     }
 
-    private static void searchWord(TrieSet.Node root, int x, int y, boolean visited[][], PriorityQueue<String> res, String str, boolean isRoot) {
+    private static void searchWord(TrieSet.Node root, int x, int y, boolean visited[][], String str, boolean isRoot) {
         // base case1: 如果当前节点exist=true，则pq内添加当前词
         if (root.exists) {
-            res.add(str);
+            resPQ.add(str);
         }
         // base case2: 如果没有可以继续搜的节点 说明已经到底，return （自动）
         Set<Character> charSet = new HashSet<>();
@@ -113,7 +114,7 @@ public class Boggle {
             for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) continue;
                 if (inBoard(x + i, y + j) && charSet.contains(board[y + j][x + i]) && !visited[y + j][x + i]) {
-                    searchWord(root.links[board[y + j][x + i] - 'a'], x + i, y + j, visited, res, str + board[y + j][x + i], false);
+                    searchWord(root.links[board[y + j][x + i] - 'a'], x + i, y + j, visited, str + board[y + j][x + i], false);
                 }
             }
         }
