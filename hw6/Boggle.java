@@ -6,6 +6,8 @@ public class Boggle {
     
     // File path of dictionary file
     static String dictPath = "words.txt";
+    static char[][] board;
+    static int width, height;
 
     /**
      * Solves a Boggle puzzle.
@@ -49,15 +51,15 @@ public class Boggle {
             boardList.add(newLine);
         }
         // Check3 -- 检查board是否为rectangle
-        int height = boardList.size();
-        int width = boardList.get(0).length();
+        height = boardList.size();
+        width = boardList.get(0).length();
         for (int i = 1; i < height; i++) {
             if (boardList.get(i).length() != width) {
                 throw new IllegalArgumentException("Board is not rectangle!");
             }
         }
         // 初始化board
-        char[][] board = new char[height][width];
+        board = new char[height][width];
         for (int y = 0; y < height; y++) {
             String line = boardList.get(y);
             for (int x = 0; x < width; x++) {
@@ -73,7 +75,7 @@ public class Boggle {
         PriorityQueue<String> resPQ = new PriorityQueue<>(new WordComparator());
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                searchWord(wordsTS.getRoot(), board, x, y, visited, resPQ, "", true);
+                searchWord(wordsTS.getRoot(), x, y, visited, resPQ, "", true);
             }
         }
         // 整理结果
@@ -89,14 +91,12 @@ public class Boggle {
         return res;
     }
 
-    private static void searchWord(TrieSet.Node root, char board[][], int x, int y, boolean visited[][], PriorityQueue<String> res, String str, boolean isRoot) {
+    private static void searchWord(TrieSet.Node root, int x, int y, boolean visited[][], PriorityQueue<String> res, String str, boolean isRoot) {
         // base case1: 如果当前节点exist=true，则pq内添加当前词
         if (root.exists) {
             res.add(str);
         }
-        // ToDo:
-        //  base case2: 如果当前str已经不是trieSet中任何String的prefix，则返回
-        // base case3: 如果没有可以继续搜的节点 说明已经到底，return （自动）
+        // base case2: 如果没有可以继续搜的节点 说明已经到底，return （自动）
         Set<Character> charSet = new HashSet<>();
         for (int i = 0; i < root.links.length - 1; i++) {
             if (root.links[i] != null) {
@@ -112,8 +112,8 @@ public class Boggle {
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) continue;
-                if (inBoard(board.length, board[0].length, x + i, y + j) && charSet.contains(board[y + j][x + i]) && !visited[y + j][x + i]) {
-                    searchWord(root.links[board[y + j][x + i] - 'a'], board, x + i, y + j, visited, res, str + board[y + j][x + i], false);
+                if (inBoard(x + i, y + j) && charSet.contains(board[y + j][x + i]) && !visited[y + j][x + i]) {
+                    searchWord(root.links[board[y + j][x + i] - 'a'], x + i, y + j, visited, res, str + board[y + j][x + i], false);
                 }
             }
         }
@@ -144,12 +144,12 @@ public class Boggle {
 
     /** 对于每个位置返回当前位置可搜索的位置，结构为List<（i，j）>
      * 此时不check是否 explored = true*/
-    private static List<int[]> reach(int height, int width, int x, int y) {
+    private static List<int[]> reach(int x, int y) {
         List<int[]> res = new LinkedList<>();
         for (int i = -1; i <= 1 ; i++) {
             for (int j = -1; j <= 1 ; j++) {
                 if (i == 0 && j == 0) continue;
-                if (inBoard(height, width, x + i, y + j)) {
+                if (inBoard(x + i, y + j)) {
                     res.add(new int[]{x + i, y + j});
                 }
             }
@@ -158,7 +158,7 @@ public class Boggle {
     }
 
     /** 返回当前位置是否在board内 */
-    private static boolean inBoard(int height, int width, int x, int y) {
+    private static boolean inBoard(int x, int y) {
         return y >= 0 && y <= height - 1 && x >= 0 && x <= width - 1;
     }
 
