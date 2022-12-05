@@ -70,7 +70,7 @@ public class Boggle {
         // 这种思路是：从TrieSet出发,TrieSet的不同Node与当前board上某一位置对应
         // 初始化visted[][]和resPriorityQueue
         boolean[][] visited = new boolean[height][width];
-        PriorityQueue<String> resPQ = new PriorityQueue<>(new WordLengthComparator());
+        PriorityQueue<String> resPQ = new PriorityQueue<>(new WordComparator());
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 searchWord(wordsTS.getRoot(), board, x, y, visited, resPQ, "", true);
@@ -120,10 +120,17 @@ public class Boggle {
         visited[y][x] = false;
     }
 
-    private static class WordLengthComparator implements Comparator<String>{
+    private static class WordComparator implements Comparator<String>{
         @Override
         public int compare(String s1, String s2) {
-            return  - s1.length() + s2.length();
+            // 开始时忽略了
+            // If multiple words have the same length,
+            // print them in ascending alphabetical order.
+            if (s1.length() != s2.length()) {
+                return - s1.length() + s2.length();
+            } else {
+                return s1.compareTo(s2);
+            }
         }
     }
 
@@ -164,4 +171,11 @@ public class Boggle {
         }
         return true;
     }
+
+//    public static void main(String[] args) {
+//        List<String> res = Boggle.solve(7, "exampleBoard.txt");
+//        for (String s : res) {
+//            System.out.println(s);
+//        }
+//    }
 }
